@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-mongodb-session": "^3.1.1",
+    "csurf": "^1.11.0",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mongodb": "^6.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "name": "instagram_clone",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ttamalito/Instagram_Clone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ttamalito/Instagram_Clone/issues"
+  },
+  "homepage": "https://github.com/ttamalito/Instagram_Clone#readme",
+  "description": ""
+}
