@@ -1,7 +1,7 @@
 // file to communicate to the user database
 
 const db = require('../database/databaseConfig');
-
+const bcrypt = require('bcryptjs');
 const COLLECTION = 'users';
 
 /**
@@ -10,9 +10,10 @@ const COLLECTION = 'users';
  * @param password
  * @param username
  * @param bio
+ * @param fullname
  * @returns {Promise<void>}
  */
-async function saveUser(email, password, username, bio) {
+async function saveUser(email, password, username, bio, fullname) {
     // hash the password
     const hashedPassword = await bcrypt.hash(password, 12)//
     // the data has been validated
@@ -25,7 +26,8 @@ async function saveUser(email, password, username, bio) {
         followers: [],
         following: [],
         savedPosts: [],
-        posts: []
+        posts: [],
+        fullname: fullname
 
     })
 } // here ends the function

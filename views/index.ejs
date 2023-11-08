@@ -1,0 +1,12 @@
+<%- include('./includes/head', {pageTitle: 'instagram'}) %>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('./includes/header') %>
+<main>
+    <% if (locals.isAuth) { %>
+        <h2>Welcome <%= locals.userName %></h2>
+    <% }%>
+</main>
+<%- include('./includes/footer') %>

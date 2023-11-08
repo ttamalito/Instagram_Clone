@@ -1,6 +1,4 @@
 <%- include('../includes/head', {pageTitle: 'Signup'}) %>
-<link rel="stylesheet" href="styles/forms.css">
-<link rel="stylesheet" href="styles/auth.css">
 </head>
 
 <body>
@@ -13,12 +11,12 @@
         <form action="/signup" method="POST"> <!-- Form is sent to currentUrl/signup via a POST method-->
             <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
             <div>
-                <label for="user-email">E-Mail</label>
-                <input type="email" id="user-email" name="user-email" required>
+                <label for="email">E-Mail</label>
+                <input type="email" id="email" name="email" required>
             </div>
             <div>
                 <label for="confirm-email">Confirm E-Mail</label>
-                <input type="email" id="confirm-email" name="confirm-email" required>
+                <input type="email" id="confirm-email" name="confirmEmail" required>
             </div>
 
             <div>
@@ -32,23 +30,13 @@
             </div>
 
             <div>
-                <label for="street">Street</label>
-                <input type="text" id="street" name="street" required>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
             </div>
 
             <div>
-                <label for="postal">Postal Code</label>
-                <input type="text"
-                id="postal"
-                name="postal"
-                minlength="5"
-                maxlength="5"
-                required>
-            </div>
-
-            <div>
-                <label for="city">City</label>
-                <input type="text" id="city" name="city" required>
+                <label for="bio">Biography</label>
+                <input type="text" id="bio" name="bio" required>
             </div>
 
             <button class="btn">Create Account</button>

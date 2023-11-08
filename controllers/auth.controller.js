@@ -17,7 +17,7 @@ function getSignUp(req, res, next) {
 
     // else
     // render the page
-    res.send('This is the signup page')
+    res.render('auth/signup');
 }
 
 /**
@@ -35,6 +35,7 @@ async function postSignUp(req, res, next) {
     const password = req.body.password;
     const username = req.body.username;
     const bio = req.body.bio;
+    const fullname = req.body.fullname;
 
     // check that there is a unique email and username
     const uniqueEmail = await userModel.checkUniqueEmail(email);
@@ -55,7 +56,7 @@ async function postSignUp(req, res, next) {
     }
 
     // otherwise we save the user to the database
-     await userModel.saveUser(email, password, username, bio);
+     await userModel.saveUser(email, password, username, bio, fullname);
     // redirect to login
     res.redirect('/login');
 } // here ends the function
@@ -76,7 +77,7 @@ function getLogin(req, res, next) {
     }
 
     // else render
-    res.send('This is the login page');
+    res.render('auth/login');
 } // here ends the page
 
 async function postLogin(req, res, next) {
@@ -106,6 +107,7 @@ async function postLogin(req, res, next) {
 
     // otherwise the user can log in
     req.session.userId = userEmail._id.toString();
+    req.session.username = userEmail.username;
     req.session.save(() => {
         // redirect once the session was modified
         res.redirect('/');
