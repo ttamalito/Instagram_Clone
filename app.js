@@ -5,8 +5,14 @@ const csurf = require('csurf');
 const db = require('./database/databaseConfig');
 const configSession = require('./sessions/session.config');
 const addCsrfToken = require('./middlewares/csrf-Token');
+const checkLoginMiddleware = require('./middlewares/check-login');
+
+
 const PORT = 'mongodb://localhost:27017';
 const databaseName = 'instagram';
+// import the routes
+const baseRoutes = require('./routes/base.routes');
+const authRoutes = require('./routes/authentication.routes');
 
 const app = express();
 
@@ -17,12 +23,14 @@ app.use(expressSession(configSession(PORT, databaseName)));
 // csrft token
 app.use(csurf());
 app.use(addCsrfToken)
-// import the routes
-const baseRoutes = require('./routes/base.routes');
+// check if the user is loggedIn
+app.use(checkLoginMiddleware);
+
 
 
 // use the routes
 app.use(baseRoutes);
+app.use(authRoutes);
 
 // start listening, if we connect to the database
 db.connectToDataBase(PORT, databaseName).then(
