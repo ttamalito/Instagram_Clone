@@ -1,0 +1,39 @@
+<%- include('../includes/head', {pageTitle: 'Login'}) %>
+<link rel="stylesheet" href="styles/forms.css">
+<link rel="stylesheet" href="styles/auth.css">
+</head>
+
+<body>
+    <!--Include the header-->
+    <%- include('../includes/header') %>
+    <main>
+        <h1>
+            Login
+        </h1>
+        <form action="/login" method="POST"> <!-- Form is sent to currentUrl/signup via a POST method-->
+            <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+            <div>
+                <% if (locals.invalidEmail) { %>
+                    <p>No user with that email, please try again!</p>
+                <% } %>
+                <% if (locals.invalidPassword) { %>
+                    <p>Credentials do not match, please try again!</p>
+                <% } %>
+                <label for="user-email">E-Mail</label>
+                <input type="email" id="user-email" name="user-email" required>
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" minlength="6" required>
+            </div>
+            <button class="btn">Login</button>
+            <p>
+                <a href="/changePassword">Forgot Password</a>
+            </p>
+            <p id="switch-form">
+                <a href="/signup">Create an account instead</a>
+            </p>
+        </form>
+    </main>
+<%- include('../includes/footer') %>

@@ -1,6 +1,8 @@
 const express = require('express');
 const expressSession = require('express-session');
 const csurf = require('csurf');
+
+const path = require('path');
 // import files
 const db = require('./database/databaseConfig');
 const configSession = require('./sessions/session.config');
@@ -16,6 +18,9 @@ const authRoutes = require('./routes/authentication.routes');
 
 const app = express();
 
+// set the ejs engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 // parse the data
 app.use(express.urlencoded({extended: false}));
 // create the session

@@ -4,7 +4,7 @@
  * @returns {boolean}
  */
  function checkLoggedIn(req) {
-     const loggedIn = req.sesssion.userdId;
+     const loggedIn = req.session.userdId;
 
      if(loggedIn) {
          // he is logged in
