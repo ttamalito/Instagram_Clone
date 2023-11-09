@@ -1,10 +1,10 @@
 /**
  * Checks if a user is loggedIn
  * @param {Express.Request} req
- * @returns {boolean}
+ * @returns {boolean} true if the user is logged in, false otherwise
  */
  function checkLoggedIn(req) {
-     const loggedIn = req.session.userdId;
+     const loggedIn = req.session.userId;
 
      if(loggedIn) {
          // he is logged in

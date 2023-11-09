@@ -1,0 +1,29 @@
+<%- include('../includes/head', {pageTitle: 'Create Post'}) %>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <h1>
+        Create New Account
+    </h1>
+    <form action="/createPost?_csrf=<%= locals.csrfToken %>" method="POST" enctype="multipart/form-data"> <!-- Form is sent to currentUrl/signup via a POST method-->
+        <!--<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>"> -->
+        <div>
+            <label for="image">Image</label>
+            <input type="file" id="image" name="profilePicture" required>
+        </div>
+        <div>
+            <label for="caption">Caption</label>
+            <input type="text" id="caption" name="caption" required>
+        </div>
+
+
+        <button class="btn">Create Post</button>
+        <p id="switch-form">
+            <a href="/">Return home</a>
+        </p>
+    </form>
+</main>
+<%- include('../includes/footer') %>

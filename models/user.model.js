@@ -3,6 +3,7 @@
 const db = require('../database/databaseConfig');
 const bcrypt = require('bcryptjs');
 const COLLECTION = 'users';
+const ObjectId = require('mongodb').ObjectId;
 
 /**
  * Saves a user to ´users´ collection asynchronously
@@ -30,6 +31,8 @@ async function saveUser(email, password, username, bio, fullname) {
         fullname: fullname
 
     })
+    console.log(saveResult.insertedId);
+    console.log(saveResult)
 } // here ends the function
 
 /**
@@ -104,6 +107,44 @@ async function hasMatchingPassword(unhashedPassword, hashedPassword) {
     return result;
 }
 
+/**
+ * Query a user by the userId
+ * @param {ObjectId} userId
+ * @returns {Promise<User?>}
+ */
+async function getUser(userId) {
+    return await db.getDatabase().collection(COLLECTION).findOne({
+        _id: userId
+    })
+}
+
+/**
+ * Adds a post with the postId to the user with the userId
+ * @param {ObjectId} userId
+ * @param {ObjectId} postId
+ * @returns {Promise<boolean>} true if the post was added succesfully
+ */
+async function addPostToUser(userId, postId) {
+    // check that the user exists
+    const user = await getUser(userId);
+    // check if null
+    if (!user) {
+        // no user
+        return false;
+    }
+
+    // the user is there, so add the post
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        _id: userId
+    }, {
+        // what to update
+        $push: {posts: postId}
+    })
+    console.log(`User ${userId.toString()} posted ${postId.toString()}`)
+    console.log(result);
+    return true;
+} // here ends post to user
+
 
 module.exports = {
     saveUser: saveUser,
@@ -111,5 +152,7 @@ module.exports = {
     checkUniqueUsername: checkUniqueUsername,
     retrieveUserByEmail: retrieveUserByEmail,
     retrieveUserByUsername: retrieveUserByUsername,
-    hasMatchingPassword: hasMatchingPassword
+    hasMatchingPassword: hasMatchingPassword,
+    getUser: getUser,
+    addPostToUser: addPostToUser
 }

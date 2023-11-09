@@ -15,6 +15,7 @@ const databaseName = 'instagram';
 // import the routes
 const baseRoutes = require('./routes/base.routes');
 const authRoutes = require('./routes/authentication.routes');
+const postRoutes = require('./routes/post.routes');
 
 const app = express();
 
@@ -36,7 +37,7 @@ app.use(checkLoginMiddleware);
 // use the routes
 app.use(baseRoutes);
 app.use(authRoutes);
-
+app.use(postRoutes);
 // start listening, if we connect to the database
 db.connectToDataBase(PORT, databaseName).then(
     () => {
@@ -46,6 +47,6 @@ db.connectToDataBase(PORT, databaseName).then(
 ).catch(
     (error) => {
         console.error(error);
-        console.log('No connection to the database stablished')
+        console.log('No connection to the database established')
     }
 )

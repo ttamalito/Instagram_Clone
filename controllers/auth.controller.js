@@ -1,6 +1,5 @@
 const checkloggedInUtils = require('../utils/checkLoggedIn');
 const userModel = require('../models/user.model');
-const {checkLoggedIn} = require("../utils/checkLoggedIn");
 /**
  * Get route for /signup
  * @param req
@@ -83,15 +82,21 @@ function getLogin(req, res, next) {
 async function postLogin(req, res, next) {
     // get the data
     const email = req.body.email;
-    const username = req.body.username;
+    let username = req.body.username;
     const password = req.body.password;
 
     // check that the user exists
     const userEmail = await userModel.retrieveUserByEmail(email);
-    const userUsername = await userModel.retrieveUserByUsername(username);
-
-    if (!userUsername || !userEmail) {
+    if (username) {
+        // the client provided a username
+        username = await userModel.retrieveUserByUsername(username);
+    } else {
+        // the client did not provide a username
+        username = true;
+    }
+    if (!username || !userEmail) {
         // there is no user
+        console.log('There is no user with that email or username');
         res.redirect('/login');
         return;
     }
@@ -99,7 +104,8 @@ async function postLogin(req, res, next) {
     // now the user exists
     const hashedPassword = userEmail.password;
     // check if the password matches
-    if (!userModel.hasMatchingPassword(password, hashedPassword)) {
+    const matchingPassword = await userModel.hasMatchingPassword(password, hashedPassword);
+    if (!matchingPassword) {
         // password doesnt match
         res.redirect('/login');
         return;
@@ -115,11 +121,29 @@ async function postLogin(req, res, next) {
 
 } // here ends postLogin
 
+function postLogout(req, res, next) {
+    // check that the user is loggedIn
+    const loggedIn = checkloggedInUtils.checkLoggedIn(req);
+    if (!loggedIn) {
+        console.log('user is not logged in and trying to logout!');
+        // user is not loggedIN
+        res.redirect('/');
+        return;
+    }
+
+    // else delete the data from the session
+    req.session.userId = null;
+    req.session.username = null;
+    // all good
+    res.redirect('/');
+} // here ends postLogout
+
 
 
 module.exports = {
     getSignUp: getSignUp,
     postSignUp: postSignUp,
     getLogin: getLogin,
-    postLogin: postLogin
+    postLogin: postLogin,
+    postLogout: postLogout
 }
