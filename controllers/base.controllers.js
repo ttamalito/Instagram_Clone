@@ -1,7 +1,7 @@
 
 function base(req, res, next) {
     // just render the initial file
-    res.render('index');
+    res.render('index', {posts: []});
 }
 
 

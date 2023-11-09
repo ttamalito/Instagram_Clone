@@ -1,0 +1,24 @@
+<%- include('../includes/head', {pageTitle: 'User' }) %>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <h1>
+        <%= locals.username %>
+    </h1>
+    <div>
+        <% if (following || ownProfile) { %>
+            <!-- Display the posts -->
+            <ul>
+                <% for (const post of posts) { %>
+                    <li>
+                        <%- include('../includes/post', {post: post} ) %>
+                    </li>
+                <% } %>
+            </ul>
+        <% } %>
+    </div>
+</main>
+<%- include('../includes/footer') %>

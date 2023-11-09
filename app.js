@@ -16,9 +16,14 @@ const databaseName = 'instagram';
 const baseRoutes = require('./routes/base.routes');
 const authRoutes = require('./routes/authentication.routes');
 const postRoutes = require('./routes/post.routes');
+const profileRoutes = require('./routes/profile.routes');
 
 const app = express();
 
+// serve css and js files
+app.use(express.static('public'));
+// serve the images static
+app.use('/static/images', express.static('data/images'));
 // set the ejs engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -38,6 +43,7 @@ app.use(checkLoginMiddleware);
 app.use(baseRoutes);
 app.use(authRoutes);
 app.use(postRoutes);
+app.use(profileRoutes);
 // start listening, if we connect to the database
 db.connectToDataBase(PORT, databaseName).then(
     () => {

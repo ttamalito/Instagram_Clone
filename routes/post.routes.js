@@ -1,5 +1,5 @@
 const express = require('express');
-const profilePictureMiddleware = require('../middlewares/profilePic-upload');
+const postPictureMiddleware = require('../middlewares/postPicture-upload');
 const postController = require('../controllers/post.controller');
 const router = express.Router();
 
@@ -7,6 +7,6 @@ const router = express.Router();
 router.get('/createPost', postController.getCreatePost);
 
 // post /createPost
-router.post('/createPost', profilePictureMiddleware,postController.postCreatePost);
+router.post('/createPost', postPictureMiddleware,postController.postCreatePost);
 
 module.exports = router;

@@ -14,6 +14,7 @@ async function savePost(userId, imageFileName, caption) {
     const saveResult = await db.getDatabase().collection(COLLECTION).insertOne({
         userId: userId,
         imageFileName: imageFileName,
+        imagePath:`posts/${imageFileName}`,
         caption: caption,
         likes: [],
         comments: [],
@@ -25,7 +26,7 @@ async function savePost(userId, imageFileName, caption) {
 
 /**
  * Retrieves a post with the given postID
- * @param {String} postId id of the post
+ * @param {ObjectId} postId id of the post
  * @returns {Promise<Post?>}
  */
 async function getPost(postId) {

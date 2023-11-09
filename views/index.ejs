@@ -10,5 +10,13 @@
     <% }%>
 
         <a href="/createPost">Create post</a>
+
+    <ul>
+        <% for (const post of posts) { %>
+            <li>
+                <%- include('./includes/post', {post: post}) %>
+            </li>
+        <% } %>
+    </ul>
 </main>
 <%- include('./includes/footer') %>

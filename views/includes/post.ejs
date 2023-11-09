@@ -1,0 +1,20 @@
+<div class="post">
+    <a href="/<%= post.username%>"></a>
+    <img src="static/images/<%= post.imagePath%>" alt="Post image">
+    <p id="caption"><%= post.caption %></p>
+    <div class="likes">
+        <span>
+            <%= post.likesCount %>
+        </span>
+        <a href="/likes/<%= post.postId %>">Likes</a>
+        <a href="/like/<%= post.postId %>">Like</a>
+    </div>
+
+    <div class="comments">
+        <span>
+            <%= post.commentsCount %>
+        </span>
+        <a href="/comments/<%= post.postId %>">Comments</a>
+        <a href="/comment/<%= post.postId %>">Leave a Comment</a>
+    </div>
+</div>
