@@ -21,7 +21,7 @@ const profileRoutes = require('./routes/profile.routes');
 const app = express();
 
 // serve css and js files
-app.use(express.static('public'));
+app.use('/public',express.static('public'));
 // serve the images static
 app.use('/static/images', express.static('data/images'));
 // set the ejs engine
@@ -43,7 +43,7 @@ app.use(checkLoginMiddleware);
 app.use(baseRoutes);
 app.use(authRoutes);
 app.use(postRoutes);
-app.use(profileRoutes);
+app.use('/user',profileRoutes);
 // start listening, if we connect to the database
 db.connectToDataBase(PORT, databaseName).then(
     () => {

@@ -1,0 +1,24 @@
+<%- include('../includes/head', {pageTitle: 'Liked By'}) %>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <h1>
+        Post of <%= locals.username %>
+        Liked by:
+    </h1>
+
+    <ul>
+        <% for (const user of users) { %>
+            <li>
+                <p>
+                    <%= user.username%>
+                </p>
+            </li>
+        <% } %>
+    </ul>
+
+</main>
+<%- include('../includes/footer') %>

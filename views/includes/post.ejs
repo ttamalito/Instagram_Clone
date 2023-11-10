@@ -1,13 +1,13 @@
 <div class="post">
     <a href="/<%= post.username%>"></a>
-    <img src="static/images/<%= post.imagePath%>" alt="Post image">
+    <img src="/static/images/<%= post.imagePath %>" alt="Post image" style="width: 100px">
     <p id="caption"><%= post.caption %></p>
     <div class="likes">
         <span>
             <%= post.likesCount %>
         </span>
-        <a href="/likes/<%= post.postId %>">Likes</a>
-        <a href="/like/<%= post.postId %>">Like</a>
+        <a href="/post/liked/<%= post._id %>">Liked By</a>
+        <button id="button-like" value="<%= post._id %>">Like </button>
     </div>
 
     <div class="comments">
@@ -15,6 +15,6 @@
             <%= post.commentsCount %>
         </span>
         <a href="/comments/<%= post.postId %>">Comments</a>
-        <a href="/comment/<%= post.postId %>">Leave a Comment</a>
+        <a href="/post/comment/<%= post._id %>">Leave a Comment </a>
     </div>
 </div>

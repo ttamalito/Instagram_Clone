@@ -145,6 +145,20 @@ async function addPostToUser(userId, postId) {
     return true;
 } // here ends post to user
 
+/**
+ * Returns a list of users
+ * @param {[ObjectId]} users Array of the ObjectIds of the users
+ * @returns {Promise<[User]>}
+ */
+async function getUsers(users) {
+    const foundUsers = await db.getDatabase().collection(COLLECTION).find({
+        // query parameters
+        _id : {$in: users}// matches a document where _id is one of the values in users
+    });
+    // console.log(foundUsers)
+    return foundUsers.toArray();
+}
+
 
 module.exports = {
     saveUser: saveUser,
@@ -154,5 +168,6 @@ module.exports = {
     retrieveUserByUsername: retrieveUserByUsername,
     hasMatchingPassword: hasMatchingPassword,
     getUser: getUser,
-    addPostToUser: addPostToUser
+    addPostToUser: addPostToUser,
+    getUsers: getUsers
 }

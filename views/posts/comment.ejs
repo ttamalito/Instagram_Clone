@@ -1,0 +1,25 @@
+<%- include('../includes/head', {pageTitle: 'Create Comment'}) %>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <h1>
+        Leave a comment:
+    </h1>
+    <form action="/post/comment/<%= post._id %>" method="POST" > <!-- Form is sent to currentUrl/signup via a POST method-->
+        <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+        <div>
+            <label for="comment">Comment</label>
+            <input type="text" id="comment" name="comment" required>
+        </div>
+
+
+        <button class="btn">Post Comment</button>
+        <p id="switch-form">
+            <a href="/">Return home</a>
+        </p>
+    </form>
+</main>
+<%- include('../includes/footer') %>

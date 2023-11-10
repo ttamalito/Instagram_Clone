@@ -35,8 +35,73 @@ async function getPost(postId) {
     });
 }
 
+/**
+ * Likes a post with postId by user with userId, if the post was not liked before by that user
+ * @param {String} userId The user liking the post
+ * @param {String} postId The postId
+ * @returns {Promise<boolean>} true if liked was added, false if like was removed
+ */
+async function likePost(postId, userId) {
+
+    // check if the user already liked the picture
+    const liked = await db.getDatabase().collection(COLLECTION).findOne({
+        $and : [{_id: new ObjectId(postId)}, { likes: {$in: [new ObjectId(userId)]}}]
+    })
+    if (liked) {
+        // the user has already liked the post
+        // remove the like from the post
+        const removed = await db.getDatabase().collection(COLLECTION).updateOne({
+            _id: new ObjectId(postId)
+        }, {
+            // specify the element to remove
+            $pull: {likes: new ObjectId(userId)}
+        });
+        return false;
+    } // here ends the if for liked
+
+    // add the like
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        _id: new ObjectId(postId)
+    }, {
+        // operation to perform
+        $push : {likes: new ObjectId(userId)}
+    });
+
+
+
+    return result.acknowledged;
+}
+
+/**
+ * Saves a comment from userId to the post with postId
+ * @param {String} userId
+ * @param {String} postId
+ * @param {String} comment
+ * @returns {Promise<boolean>}
+ */
+async function commentPost(userId, postId, comment) {
+    const comm = {
+        userId: new ObjectId(userId),
+        comment: comment,
+        dateCreated: new Date().toISOString(),
+        likes: []
+    }
+    // insert the comment to the database
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        // query parameters
+        _id: new ObjectId(postId)
+    }, {
+        // what to update
+        $push: {comments: comm}
+    });
+
+    return result.acknowledged;
+} // here ends commentPost
+
 
 module.exports = {
     savePost: savePost,
-    getPost: getPost
+    getPost: getPost,
+    likePost: likePost,
+    commentPost: commentPost
 }
