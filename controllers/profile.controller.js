@@ -2,6 +2,7 @@ const userModel = require('../models/user.model');
 const postModel = require('../models/post.model');
 const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
+const {checkLoggedIn} = require("../utils/checkLoggedIn");
 
 /**
  * Displays the user profile
@@ -33,6 +34,7 @@ async function getProfile(req, res, next) {
     } else {
         // it is a different user
         following = profileUtils.isFollowed(user.followers, requesterId);
+        console.log(`${requesterId} is following ${user.username} ${following}`);
     }
 
     let posts = [];
@@ -48,7 +50,9 @@ async function getProfile(req, res, next) {
     const views = {
         following: following,
         ownProfile: ownProfile,
-        posts: posts
+        posts: posts,
+        requesteeUsername: username,
+        requesteeUserId: user._id.toString()
     }
     // console.log(posts);
     // render the page
@@ -57,7 +61,34 @@ async function getProfile(req, res, next) {
 
 }
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+async function postFollow(req, res,  next) {
+    // check that the user is loggedIn
+    if (!checkLoggedIn(req)) {
+        // user is not loggedIn
+        res.redirect('/login');
+        return;
+    }
+
+    // else follow the user in the req.params
+    const userMakingRequestToFollow = req.session.userId;
+    const userBeingRequested = req.params.userId;
+    const followResult = await userModel.followUser(userMakingRequestToFollow, userBeingRequested);
+
+    const user = await userModel.getUser(new ObjectId(userBeingRequested));
+
+    // else all good
+    res.redirect(`/user/${user.username}`)
+}
+
 
 module.exports = {
-    getProfile: getProfile
+    getProfile: getProfile,
+    postFollow: postFollow
 }

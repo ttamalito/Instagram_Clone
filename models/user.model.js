@@ -4,7 +4,7 @@ const db = require('../database/databaseConfig');
 const bcrypt = require('bcryptjs');
 const COLLECTION = 'users';
 const ObjectId = require('mongodb').ObjectId;
-
+const profileUtils = require('../utils/profile.utils');
 /**
  * Saves a user to ´users´ collection asynchronously
  * @param email
@@ -159,6 +159,59 @@ async function getUsers(users) {
     return foundUsers.toArray();
 }
 
+/**
+ * Puts userRequesting in the followers list of userBeingreqeusted and puts userBeingRequested
+ * in the following list of userRequesting
+ * @param {String} userRequesting
+ * @param {String} userBeingRequested
+ * @returns {Promise<boolean>}
+ */
+async function followUser(userRequesting, userBeingRequested) {
+    // get the user being requested
+    const requestee = await getUser(new ObjectId(userBeingRequested));
+    // check if the userRequesting is already following
+    const followersRequestee = requestee.followers;
+    if (profileUtils.isFollowed(followersRequestee, userRequesting)) {
+        // the user is already following, so
+        return false;
+    }
+
+    // now check if the requester is already following the requestee
+    const requester = await getUser(new ObjectId(userRequesting));
+    const followingRequester = requester.following;
+
+    if (profileUtils.isFollowing(followingRequester, userBeingRequested)) {
+        // requester already follows requestee, thus
+        return false;
+    }
+
+    // otherwise the user is not being followed. Thus
+    const resultOne = await db.getDatabase().collection(COLLECTION).updateOne({
+        _id: new ObjectId(userBeingRequested)
+    }, {
+        // add the requester to the followers list
+        $push: {followers: new ObjectId(userRequesting)}
+    });
+
+    const resultTwo = await db.getDatabase().collection(COLLECTION).updateOne({
+        _id: new ObjectId(userRequesting)
+    }, {
+        $push: {following: new ObjectId(userBeingRequested)}
+    });
+
+    return resultTwo.acknowledged && resultOne.acknowledged;
+}
+
+/**
+ *
+ * @param { ObjectId} requesterId
+ * @param {ObjectId} requesteeId
+ * @returns {Promise<boolean>}
+ */
+async function unFollowUser(requesterId, requesteeId) {
+
+    return true;
+}
 
 module.exports = {
     saveUser: saveUser,
@@ -169,5 +222,6 @@ module.exports = {
     hasMatchingPassword: hasMatchingPassword,
     getUser: getUser,
     addPostToUser: addPostToUser,
-    getUsers: getUsers
+    getUsers: getUsers,
+    followUser: followUser
 }

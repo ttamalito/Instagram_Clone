@@ -2,19 +2,46 @@
     <a href="/<%= post.username%>"></a>
     <img src="/static/images/<%= post.imagePath %>" alt="Post image" style="width: 100px">
     <p id="caption"><%= post.caption %></p>
-    <div class="likes">
+    <div>
         <span>
             <%= post.likesCount %>
         </span>
-        <a href="/post/liked/<%= post._id %>">Liked By</a>
-        <button id="button-like" value="<%= post._id %>">Like </button>
+        <button class="likedBy" value="<%= post._id %>">Likes</button>
+        <div id="likes-<%= post._id %>" style="visibility: hidden">
+            <ul id="likes-list-<%= post._id %>">
+
+            </ul>
+        </div>
+        <button class="button-like" value="<%= post._id %>">Like </button>
     </div>
 
-    <div class="comments">
+    <div>
         <span>
             <%= post.commentsCount %>
         </span>
-        <a href="/comments/<%= post.postId %>">Comments</a>
-        <a href="/post/comment/<%= post._id %>">Leave a Comment </a>
+        <button class="see-comments" value="<%= post._id %>">See Comments</button>
+        <div id="comments-<%= post._id %>" style="visibility: hidden">
+            <ul id="list-<%= post._id %>">
+            </ul>
+        </div>
+        <button class="leave-comment" value="<%= post._id %>">Leave a Comment</button>
+        <div id="create-comment-<%= post._id %>" style="visibility: hidden">
+            <h1>
+                Leave a comment:
+            </h1>
+            <form id="form-<%= post._id %>" > <!-- Form is sent to currentUrl/signup via a POST method-->
+                <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+                <div>
+                    <label for="comment-<%= post._id %>">Comment</label>
+                    <input type="text" id="comment-<%= post._id %>" name="comment" required>
+                </div>
+
+
+                <button class="post-comment" value="<%= post._id %>">Post Comment</button>
+                <p id="switch-form">
+                    <a href="/">Return home</a>
+                </p>
+            </form>
+        </div>
     </div>
 </div>

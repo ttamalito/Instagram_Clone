@@ -130,7 +130,7 @@ async function getLikedBy(req, res, next) {
     // get all the users
     const post = await postModel.getPost(new ObjectId(req.params.postId))
     const usersIds = post.likes;
-    console.log(usersIds)
+
     // console.log(typeof usersIds)
     // get the array of users
     let users = await userModel.getUsers(usersIds);
@@ -138,8 +138,9 @@ async function getLikedBy(req, res, next) {
     // users = await userModel.getUser(usersIds[0]);
     // console.log(users)
     // pass the users to the html page
-    res.render('posts/likedBy',{users: users});
-
+    // res.render('posts/likedBy',{users: users});
+    // send the data
+    res.send(users);
 
 }
 
@@ -173,7 +174,7 @@ async function postComment(req, res, next) {
     }
 
     // else all good
-    res.redirect('/');
+    res.end();
 } // here ends postComment
 
 /**
@@ -182,17 +183,29 @@ async function postComment(req, res, next) {
  * @param res
  * @param next
  */
-function getComment(req, res, next) {
+async function getComment(req, res, next) {
     // checked logged in
     if (!checkLoggedIn.checkLoggedIn(req)) {
         // not logged in
         res.redirect('/login');
         return;
     }
-    console.log('We are here')
-    console.log(req.params.postId)
+    // query all the comments for a post
+    const postId = req.params.postId;
+    const post = await postModel.getPost(new ObjectId(postId));
+    // console.log(comments)
+    const comments = await Promise.all(post.comments.map(async comment => {
+        const user = await userModel.getUser(comment.userId);
+        // define a new object
+        return {
+            comment: comment.comment,
+            user: user.username
+        };
+    }))
+    res.send(comments);
+    // res.json(comments);
     // else render the page
-    res.render('posts/comment', {post: {_id : req.params.postId}});
+    // res.render('posts/comment', {post: {_id : req.params.postId}});
 } // here ends getComment
 
 

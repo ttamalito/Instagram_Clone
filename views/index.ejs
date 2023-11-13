@@ -5,9 +5,13 @@
 <!--Include the header-->
 <%- include('./includes/header') %>
 <main>
-    <% if (locals.isAuth) { %>
-        <h2>Welcome <%= locals.userName %></h2>
-    <% }%>
+    <% if (locals.loggedIn) { %>
+        <h2>Welcome <%= locals.username %></h2>
+        <a href="/user/<%= locals.username %>">Profile</a>
+    <% } else { %>
+            <a href="/login">Login</a>
+            <a href="/signup">Signup</a>
+        <% }%>
 
         <a href="/createPost">Create post</a>
 
