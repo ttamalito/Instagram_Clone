@@ -1,0 +1,33 @@
+<%- include('../includes/head', {pageTitle: 'User' }) %>
+<script src="/public/scripts/editProfileScripts/submitDataToEditProfile.js" defer></script>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <h1>
+        <%= username %>
+    </h1>
+
+    <div>
+        <% if (ownProfile) { %>
+            <!--Display the settings to edit the profile of the user -->
+            <img src="<%= imagePath %>" alt="Profile Picture of the user" style="border-radius: 18px;
+            width: 100px">
+            <button style="visibility: hidden" value="<%= username %>" id="username"></button>
+            <form id="edit-form">
+                <label for="profilePicture">Upload Profile picture</label>
+                <input type="file" name="profilePicture" id="profilePicture">
+
+                <label for="bio">Bio</label>
+                <input type="text" name="bio" id="bio" value="<%= userBio %>">
+                <label for="public">Public</label>
+                <input type="checkbox" name="public" id="public" checked>
+                <button type="submit" id="csrf" value="<%= locals.csrfToken %>">Change Profile</button>
+            </form>
+        <% } %>
+
+    </div>
+</main>
+<%- include('../includes/footer') %>

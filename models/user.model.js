@@ -23,12 +23,14 @@ async function saveUser(email, password, username, bio, fullname) {
         password: hashedPassword,
         username: username,
         bio: bio,
-        profilePicture: 'default_profile_pic', // relative path to /images/profilePictures
+        profilePicture: 'default_profile_pic.jpg', // relative path to /images/profilePictures
         followers: [],
         following: [],
         savedPosts: [],
         posts: [],
-        fullname: fullname
+        fullname: fullname,
+        dateCreated: new Date().toISOString(),
+        public: true
 
     })
     console.log(saveResult.insertedId);
@@ -203,14 +205,120 @@ async function followUser(userRequesting, userBeingRequested) {
 }
 
 /**
- *
+ * Removes requesterId frome the followers list of the requestee,
+ * and it removes requesteeId from the following list of the requester
  * @param { ObjectId} requesterId
  * @param {ObjectId} requesteeId
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>} true if the action was performed successfully
  */
 async function unFollowUser(requesterId, requesteeId) {
+    // check that requester is a follower of requestee
+    const requestee = await getUser(requesteeId);
+    const requesteeFollowers = requestee.followers;
+    if (!profileUtils.isFollowed(requesteeFollowers, requesterId.toString())) {
+        // requstee is not followed by requester
+        // there is nothing to do
+        return false;
+    }
 
-    return true;
+    // else remove requesterId from the followers list
+    const resultOne = await db.getDatabase().collection(COLLECTION).updateOne({
+        _id: requesteeId
+    }, {
+        // what to remove, i.e. the requester from the followers of the requestee
+        $pull: {followers: requesterId}
+        }
+    );
+
+    // now remove the requesteeId from the following of the requester
+    const resultTwo = await db.getDatabase().collection(COLLECTION).updateOne({
+    _id: requesterId
+    },
+        {
+            // what to remove, i.e., the requesteeId from the following list
+            $pull: {following: requesteeId}
+        });
+    return resultOne.acknowledged && resultTwo.acknowledged;
+}
+
+
+/**
+ * Updates the Bio of a user with the given id
+ *
+ * @param {ObjectId} id
+ * @param {String} bio
+ * @returns {Promise<boolean>}
+ */
+async function updateBio(id, bio) {
+    // get the user
+    const user = await getUser(id);
+    // check if null
+    if (!user) {
+        // no user
+        return false;
+    }
+
+    // update the user
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        // filter
+        _id: id
+    }, {
+        // data to update
+        $set: {bio: bio}
+    });
+    return result.acknowledged;
+}
+
+/**
+ * Updates the profile picture of a user with the given id
+ * @param {ObjectId} id
+ * @param {String} fileName
+ * @returns {Promise<boolean>}
+ */
+async function updateProfilePicture(id, fileName) {
+    // get the user
+    const user = await getUser(id);
+    // check if null
+    if (!user) {
+        // no user
+        return false;
+    }
+
+    // update the user
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        // filter
+        _id: id
+    }, {
+        // data to update
+        $set: {profilePicture: fileName}
+    });
+    return result.acknowledged;
+}
+
+/**
+ * Updates public status of a user with the given id
+ * @param {ObjectId} id
+ * @param {boolean} value
+ * @returns {Promise<boolean>}
+ */
+async function updatePublicStatus(id, value) {
+    // get the user
+    const user = await getUser(id);
+    // check if null
+    if (!user) {
+        // no user
+        return false;
+    }
+
+    // update the user
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        // filter
+        _id: id
+    }, {
+        // data to update
+        $set: {public: value}
+    });
+    return result.acknowledged;
 }
 
 module.exports = {
@@ -223,5 +331,9 @@ module.exports = {
     getUser: getUser,
     addPostToUser: addPostToUser,
     getUsers: getUsers,
-    followUser: followUser
+    followUser: followUser,
+    unFollowUser: unFollowUser,
+    updateBio: updateBio,
+    updateProfilePicture: updateProfilePicture,
+    updatePublicStatus: updatePublicStatus
 }

@@ -19,7 +19,9 @@
         <span>
             <%= post.commentsCount %>
         </span>
-        <button class="see-comments" value="<%= post._id %>">See Comments</button>
+        <button class="see-comments" value="<%= post._id %>" id="see-comment-<%= post._id %>">See Comments</button>
+        <button class="close-comments" value="<%= post._id %>" id="close-comment-<%= post._id %>"
+         style="visibility: hidden" >Close comments</button>
         <div id="comments-<%= post._id %>" style="visibility: hidden">
             <ul id="list-<%= post._id %>">
             </ul>

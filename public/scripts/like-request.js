@@ -1,5 +1,5 @@
 
-
+// logic to like a picture
 let buttonsToLike = document.getElementsByClassName('button-like');
 console.log(buttonsToLike)
 // add am event listener to avery single class

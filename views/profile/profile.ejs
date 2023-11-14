@@ -2,6 +2,7 @@
 <script src="/public/scripts/like-request.js" defer></script>
 <script src="/public/scripts/post-comment.js" defer></script>
 <script src="/public/scripts/profileScripts/followScript.js" defer></script>
+<script src="/public/scripts/profileScripts/unfollowScript.js" defer></script>
 </head>
 
 <body>
@@ -12,18 +13,24 @@
         <%= requesteeUsername %>
     </h1>
     <button id="csrf" value="<%= locals.csrfToken %>" style="visibility: hidden"></button>
+    <img src="<%= imagePath %>" alt="Profile Picture of the user" style="border-radius: 18px;
+            width: 100px">
+    <div>
+        <h3>Bio of <%= requesteeUsername %></h3>
+        <p><%= userBio %></p>
+    </div>
     <div>
         <% if (!following && !ownProfile) { %>
             <button id="follow-user" value="<%= requesteeUserId %>">Follow User</button>
 
         <% } else if (following && !ownProfile) { %>
             <!-- You are following the user but it is not your own profile-->
-            <button id="unfollow-user" value="<%= requesteeUserId %>">Unfollow user</button>
+            <button id="unfollow-user" value="<%= requesteeUsername %>">Unfollow user</button>
             <% } %>
         <% if (following || ownProfile) { %>
             <!-- Display the posts -->
             <!-- Check if the user can be followed -->
-
+            <h3>Posts of <%= requesteeUsername %></h3>
             <ul>
                 <% for (const post of posts) { %>
                     <li>

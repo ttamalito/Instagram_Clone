@@ -4,7 +4,7 @@ const storage = multer.diskStorage({
     destination: 'data/images/profilePictures',
     filename: (req, file, cb) => {
         // determine the filename
-        cb(null, uuid() + 'profilePicture' + file.originalname);
+        cb(null, uuid() + '-profilePicture-' + file.originalname);
     }
 })
 
