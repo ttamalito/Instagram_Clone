@@ -17,7 +17,7 @@ const baseRoutes = require('./routes/base.routes');
 const authRoutes = require('./routes/authentication.routes');
 const postRoutes = require('./routes/post.routes');
 const profileRoutes = require('./routes/profile.routes');
-
+const searchRoutes = require('./routes/search.routes');
 const app = express();
 
 // serve css and js files
@@ -44,6 +44,7 @@ app.use(baseRoutes);
 app.use(authRoutes);
 app.use(postRoutes);
 app.use('/user',profileRoutes);
+app.use('/search', searchRoutes);
 // start listening, if we connect to the database
 db.connectToDataBase(PORT, databaseName).then(
     () => {

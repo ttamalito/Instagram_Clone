@@ -1,4 +1,5 @@
 <%- include('./includes/head', {pageTitle: 'instagram'}) %>
+<script src="/public/scripts/searchScripts/searchUserSimple.js" defer></script>
 </head>
 
 <body>
@@ -15,6 +16,13 @@
 
         <a href="/createPost">Create post</a>
 
+        <form id="search-form" enctype="application/x-www-form-urlencoded">
+            <label for="user-input">Search for a user:</label>
+            <input type="text" id="user-input" name="username">
+            <button type="submit"> Search </button>
+        </form>
+
+        <div id="search-result"></div>
     <ul>
         <% for (const post of posts) { %>
             <li>

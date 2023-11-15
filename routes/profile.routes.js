@@ -17,4 +17,10 @@ router.get('/edit/:username', profileController.getEditProfile);
 
 router.post('/edit/:username', profilePicUpload,profileController.postEditProfile);
 
+// get route to get all the followers
+router.get('/:username/followers', profileController.getFollowers);
+
+// get route to get the 'following' list
+router.get('/:username/following', profileController.getFollowing);
+
 module.exports = router;

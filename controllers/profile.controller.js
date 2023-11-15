@@ -3,6 +3,7 @@ const postModel = require('../models/post.model');
 const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
 const {checkLoggedIn} = require("../utils/checkLoggedIn");
+const LikeCommentEnum = require('../utils/LikeCommentEnum');
 
 /**
  * Displays the user profile
@@ -24,6 +25,9 @@ async function getProfile(req, res, next) {
         return;
     }
 
+    // public profile, true of false
+    const publicProfile = user.public;
+
     // check if it is the requester's own profile
     let ownProfile = false;
     let following = false;
@@ -38,14 +42,26 @@ async function getProfile(req, res, next) {
 
     let posts = [];
     // if the ownProfile or following is true, then query the posts
-    if (ownProfile || following) {
+    if (ownProfile || following || publicProfile) {
         // query the posts
         const postsIds = user.posts; // this is an array of ObjectIds
         posts =  await Promise.all(postsIds.map(async (postId) => {
             // query every single post
             return await postModel.getPost(postId) } // here ends the callback function of map
         )) // here ends map
+
+        // add to each post the likes count and comment count
+        // add if the user has liked the picture
+        posts = posts.map((post) => {
+            // callback function
+            post.likeCount = profileUtils.getCount(post, LikeCommentEnum.Like);
+            post.commentCount = profileUtils.getCount(post, LikeCommentEnum.Comment)
+            post.likeValue = profileUtils.checkLikedByUser(post, new ObjectId(requesterId));
+            return post;
+        }) // here ends the map
     } // here ends the if statement
+
+
     const views = {
         following: following,
         ownProfile: ownProfile,
@@ -53,7 +69,8 @@ async function getProfile(req, res, next) {
         requesteeUsername: username,
         requesteeUserId: user._id.toString(),
         imagePath: `/static/images/profilePictures/${user.profilePicture}`,
-        userBio: user.bio
+        userBio: user.bio,
+        publicProfile: publicProfile
     }
     // console.log(posts);
     // render the page
@@ -155,7 +172,8 @@ async function getEditProfile(req, res, next) {
         ownProfile: ownProfile,
         username: user.username,
         imagePath: `/static/images/profilePictures/${user.profilePicture}`,
-        userBio: user.bio
+        userBio: user.bio,
+        publicProfile: user.public
     });
 }
 
@@ -195,26 +213,147 @@ async function postEditProfile(req, res, next) {
     // the user is safe
     // save the new data
     if (req.body.public) {
+        // make it public
+        // console.log('Profile public')
         await userModel.updatePublicStatus(user._id,true)
     } else {
+        // make it private
+        // console.log('Profile Private')
         await userModel.updatePublicStatus(user._id, false);
     }
 
-    // save the bio
-    await userModel.updateBio(user._id, req.body.bio);
+        // save the bio
+        await userModel.updateBio(user._id, req.body.bio);
 
-    console.log(`File name: ${req.file.filename}`)
-    // save the new profile picture
-    await userModel.updateProfilePicture(user._id, req.file.filename);
+    // check if there is a file
+    if (req.file) {
+        // save the new profile picture
+        await userModel.updateProfilePicture(user._id, req.file.filename);
+    }
+
+
 
     // redirect to the profile
     res.redirect(`/user/${user.username}`);
 } // here ends teh method
+
+
+async function getFollowers(req, res, next) {
+    // check that the requester is following or the requestee is public
+    // get the requestee
+    const requestee = await userModel.retrieveUserByUsername(req.params.username);
+    // check if it exists
+    if (!requestee) {
+        // no user with that username
+        res.redirect('/');
+        return;
+    }
+
+    const publicProfile = requestee.public;
+
+    // get the followers but with the username
+    const followers = await Promise.all(
+        requestee.followers.map(
+            // callback for map
+            async (id) => {
+                const follower = await userModel.getUser(id);
+                return follower.username;
+            } // here ends the callback for map
+        )// here ends map
+    ); // here ends Promise.all
+
+
+    // if the profile is public, that is it, just return the followers
+    if (publicProfile) {
+        // public profile
+        res.json({followers: followers});
+        return;
+    }
+
+    // if the profile is not public, check if the requestor is logged in and following the requestee
+    if (!checkLoggedIn(req)) {
+        // requestor not logged in
+        res.redirect('/login');
+        return;
+    }
+    // check if the requestor is part of followers
+    const requestorFollowing = profileUtils.isFollowed(requestee.followers, req.session.userId);
+    if (!requestorFollowing) {
+        // not following
+        res.redirect(`/user/${req.params.username}`);
+        return;
+    }
+
+    // at this point all good, return the followers
+    res.json({followers: followers});
+
+} // here endsGetFollowers
+
+
+/**
+ * get route to retrieve the 'following' list
+ * @param {Express.Request} req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+async function getFollowing(req, res, next) {
+    // check that the requester is following or the requestee is public
+    // get the requestee
+    const requestee = await userModel.retrieveUserByUsername(req.params.username);
+    // check if it exists
+    if (!requestee) {
+        // no user with that username
+        res.redirect('/');
+        return;
+    }
+
+    const publicProfile = requestee.public;
+
+    // get the following but with the username
+    const following = await Promise.all(
+        requestee.following.map(
+            // callback for map
+            async (id) => {
+                const user = await userModel.getUser(id);
+                return user.username;
+            } // here ends the callback for map
+        )// here ends map
+    ); // here ends Promise.all
+
+
+    // if the profile is public, that is it, just return the followers
+    if (publicProfile) {
+        // public profile
+        res.json({following: following});
+        return;
+    }
+
+    // if the profile is not public, check if the requestor is logged in and following the requestee
+    if (!checkLoggedIn(req)) {
+        // requestor not logged in
+        res.redirect('/login');
+        return;
+    }
+    // check if the requestor is part of followers
+    const requestorFollowing = profileUtils.isFollowed(requestee.followers, req.session.userId);
+    if (!requestorFollowing) {
+        // not following
+        res.redirect(`/user/${req.params.username}`);
+        return;
+    }
+
+    // at this point all good, return the followers
+    res.json({following: following});
+
+} // here ends the method
 
 module.exports = {
     getProfile: getProfile,
     postFollow: postFollow,
     postUnfollow: postUnfollow,
     getEditProfile: getEditProfile,
-    postEditProfile: postEditProfile
+    postEditProfile: postEditProfile,
+    getFollowers: getFollowers,
+    getFollowing: getFollowing
 }

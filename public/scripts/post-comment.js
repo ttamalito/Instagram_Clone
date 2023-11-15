@@ -9,29 +9,45 @@ for (const leaveComment of leaveComments) {
     })
 } // here ends the for loop
 
-// create a fetch for create comment
+// fetch for create comment
 let postComments = document.getElementsByClassName('post-comment');
 
 // add an event listener ot every single button
 for (const postComment of postComments) {
     postComment.addEventListener('click', e => {
+        e.preventDefault(); // prevent the form to be submited
         const comment = document.querySelector(`#comment-${postComment.value}`).value;
         const form = document.querySelector(`#form-${postComment.value}`);
+
+
 
         const data = new URLSearchParams();
         for (const pair of new FormData(form)) {
             data.append(pair[0], pair[1]);
         }
 
+        // make the create comment div invisblie
+        const createCommentDiv = document.querySelector(`#create-comment-${postComment.value}`);
+        createCommentDiv.style.visibility = 'hidden';
+
+        // make the value of the comment text input empty
+        const commentInput = document.querySelector(`#comment-${postComment.value}`);
+        commentInput.value  = '';
+
         fetch(`http://localhost:3000/post/comment/${postComment.value}`, {
             method: 'POST',
             redirect: 'follow',
             body: data
-        }).then(res => {
+        }).then(async res => {
+            // now retrieve the new comment count
+
             if (res.redirected) {
                 // redirect if true
                 window.location.href = res.url;
             }
+            const data = await res.json();
+            const spanCommentCount = document.querySelector(`#comment-count-${postComment.value}`);
+            spanCommentCount.textContent = data.commentCount;
 
         }).catch((error) => {console.error(error)});
     }) // here ends the event listener
@@ -44,6 +60,15 @@ let seeComments = document.getElementsByClassName('see-comments');
 // for each seeComments button add an event listener
 for (const seeComment of seeComments) {
     seeComment.addEventListener('click', async e => {
+
+        let data = await fetch(`http://localhost:3000/post/comment/${seeComment.value}`, {
+            method: 'GET',
+            redirect: 'follow'
+        })
+        // check if redirected
+        if (data.redirected) {
+            window.location.href = data.url;
+        }
         // make the div that has all the comments visible
         const comment = document.querySelector(`#comments-${seeComment.value}`);
         comment.style.visibility = 'visible';
@@ -51,10 +76,6 @@ for (const seeComment of seeComments) {
         const closeComment = document.querySelector(`#close-comment-${seeComment.value}`);
         // make the Close Comments button visible
         closeComment.style.visibility = 'visible';
-        let data = await fetch(`http://localhost:3000/post/comment/${seeComment.value}`, {
-            method: 'GET',
-            redirect: 'follow'
-        })
         data.json().then( (d) => {
             // here we have the data
             const ul = document.querySelector(`#list-${seeComment.value}`);
@@ -91,10 +112,6 @@ let likesButtons = document.getElementsByClassName('likedBy');
 // add am event listener to avery single class
 for (const button of likesButtons) {
     button.addEventListener('click', async e => {
-        // display the div
-        const likes = document.querySelector(`#likes-${button.value}`);
-        console.log(likes)
-        likes.style.visibility = 'visible';
 
         // fetch the data
         let response;
@@ -106,8 +123,20 @@ for (const button of likesButtons) {
         }catch (error) {
             console.error(error);
         } // here ends try catch block
+        // check if we need to redirect
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+        // display the div
+        const likes = document.querySelector(`#likes-${button.value}`);
+        likes.style.visibility = 'visible';
+        // make the close-like button visible
+        const likeButton = document.querySelector(`#close-like-${button.value}`);
+        likeButton.style.visibility = 'visible';
+        // make the Likes button hidden
+        button.style.visibility = 'hidden';
+
         const data = await response.json();
-        console.log(data)
         const ul = document.querySelector(`#likes-list-${button.value}`);
         removeAllChildNodes(ul);
         // now iterate through the data and display it
@@ -118,6 +147,24 @@ for (const button of likesButtons) {
         }
     })
 } // here ends the for loop
+
+
+// code to close the likes
+const closeLikes = document.getElementsByClassName('close-likes');
+// for each seeLike button add an event listener
+for (const closeLike of closeLikes) {
+    closeLike.addEventListener('click', async e => {
+        // make the div that has the likes invisible
+        const like = document.querySelector(`#likes-${closeLike.value}`);
+        like.style.visibility = 'hidden';
+        const seeLike = document.querySelector(`#see-like-${closeLike.value}`);
+        seeLike.style.visibility = 'visible'; // make the See Likes button visible
+        // make the close likes hidden
+        closeLike.style.visibility = 'hidden';
+    }); // here ends the eventListener
+} // here ends the for loop
+
+
 
 /**
  * Fuction to remove all children of an HTML element

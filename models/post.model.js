@@ -4,7 +4,7 @@ const ObjectId = require('mongodb').ObjectId;
 const COLLECTION = 'posts';
 /**
  * Saves a Post to the 'posts' collection
- * @param userId Owner of the post
+ * @param {String} userId Owner of the post
  * @param imageFileName fileName saved in the server
  * @param caption Caption of the user
  * @returns {Promise<ObjectId>} When the promise is fulfilled, it returns an ObjectId with the _id
@@ -12,7 +12,7 @@ const COLLECTION = 'posts';
 async function savePost(userId, imageFileName, caption) {
     const date = new Date().toISOString();
     const saveResult = await db.getDatabase().collection(COLLECTION).insertOne({
-        userId: userId,
+        userId: new ObjectId(userId),
         imageFileName: imageFileName,
         imagePath:`posts/${imageFileName}`,
         caption: caption,
@@ -97,11 +97,33 @@ async function commentPost(userId, postId, comment) {
 
     return result.acknowledged;
 } // here ends commentPost
+/*
+async function temporal() {
+    // get all the posts
+    let posts = await db.getDatabase().collection(COLLECTION).find();
+    posts = await posts.toArray();
+    console.log(posts);
+    posts = await Promise.all(posts.map(
+        async (post) => {
+            const result = await db.getDatabase().collection(COLLECTION).updateOne({
+                _id: post._id
+            }, {
+                // what to update
+                $set: {userId: new ObjectId(post.userId)}
+            }) // here ends updateOne
+            console.log(result);
+            return result;
+        }
+    ))
+}
+
+ */
+
 
 
 module.exports = {
     savePost: savePost,
     getPost: getPost,
     likePost: likePost,
-    commentPost: commentPost
+    commentPost: commentPost,
 }

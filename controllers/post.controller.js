@@ -2,6 +2,7 @@ const checkLoggedIn = require('../utils/checkLoggedIn');
 const userModel = require('../models/user.model');
 const postModel = require('../models/post.model');
 const ObjectId = require('mongodb').ObjectId;
+const profileUtils = require('../utils/profile.utils');
 
 /**
  * GET for /createPost
@@ -102,50 +103,70 @@ async function getLike(req, res, next) {
     const postId = req.params.postId;
     // add a like to the post
     const result = await postModel.likePost(postId, req.session.userId);
-
+    // get the new like count
+    const post = await postModel.getPost(new ObjectId(postId));
+    const likeCount = post.likes.length;
     // else all good.
     // redirect to the profile of the user
-    res.end()
+    res.json({likeCount: likeCount});
 
 } // here ends getLike
 
 /**
  * /post/liked/:postId
+ * Controller to send all the users that have liked a picture
  * @param req
  * @param res
  * @param next
  * @returns {Promise<void>}
  */
 async function getLikedBy(req, res, next) {
-    // checked if login
-    if (!checkLoggedIn.checkLoggedIn(req)) {
-        // user not loggged in
-        res.redirect('/login');
+
+    // get the post
+    const post = await postModel.getPost(new ObjectId(req.params.postId));
+    // get the owner of the post
+    const ownerOfThePostId = post.userId; // this is a String
+    // get the owner of the post and see if the profile is private
+    const ownerOfThePost = await userModel.getUser(ownerOfThePostId);
+    // make sure it exists
+    if (!ownerOfThePost) {
+        // there is a post with a user that doesn't exist
+        next(new Error(`Post ${req.params.postId} has a non-existent owner line 140 post.controller`));
         return;
     }
 
-    // user is loggedIn
-    const userId = req.session.userId;
+    // see if the profile is private
+    if (!ownerOfThePost.public) {
+        // the profile is private
+        // checked if login
+        if (!checkLoggedIn.checkLoggedIn(req)) {
+            // user not loggged in
+            res.redirect('/login');
+            return;
+        }
 
-    // get all the users
-    const post = await postModel.getPost(new ObjectId(req.params.postId))
+        // check if the requestor is following the ownerOfThePost
+        if (!profileUtils.isFollowed(ownerOfThePost.followers, req.session.userId)) {
+            // not following
+            // thus not able to see the likes
+            res.redirect(`/user/${ownerOfThePost.username}`);
+            return;
+        }
+        // at this point all good so we can query the likes and display them
+    } // here ends the if statement
     const usersIds = post.likes;
 
     // console.log(typeof usersIds)
     // get the array of users
     let users = await userModel.getUsers(usersIds);
-    // console.log(users)
-    // users = await userModel.getUser(usersIds[0]);
-    // console.log(users)
-    // pass the users to the html page
-    // res.render('posts/likedBy',{users: users});
+
     // send the data
     res.send(users);
 
 }
 
 /**
- * POST /post/comment/:postId
+ * POST /post/comment/:postId, controller to post a comment
  * @param req
  * @param res
  * @param next
@@ -173,12 +194,16 @@ async function postComment(req, res, next) {
         return;
     }
 
+    // get the new comment count
+    const post = await postModel.getPost(new ObjectId(postId));
+    const commentCount = post.comments.length;
+
     // else all good
-    res.end();
+    res.json({commentCount: commentCount});
 } // here ends postComment
 
 /**
- *
+ * Controller to send all the comments of a given post
  * @param req
  * @param res
  * @param next

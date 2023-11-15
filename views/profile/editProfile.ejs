@@ -22,8 +22,13 @@
 
                 <label for="bio">Bio</label>
                 <input type="text" name="bio" id="bio" value="<%= userBio %>">
-                <label for="public">Public</label>
-                <input type="checkbox" name="public" id="public" checked>
+                <% if (publicProfile) { %>
+                    <label for="public">Public</label>
+                    <input type="checkbox" name="public" id="public" checked="checked">
+                <% } else { %>
+                    <label for="public">Public</label>
+                    <input type="checkbox" name="public" id="public">
+                <% } %>
                 <button type="submit" id="csrf" value="<%= locals.csrfToken %>">Change Profile</button>
             </form>
         <% } %>

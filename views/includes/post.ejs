@@ -3,23 +3,25 @@
     <img src="/static/images/<%= post.imagePath %>" alt="Post image" style="width: 100px">
     <p id="caption"><%= post.caption %></p>
     <div>
-        <span>
-            <%= post.likesCount %>
+        <span id="like-count-<%= post._id %>">
+            <%= post.likeCount %>
         </span>
-        <button class="likedBy" value="<%= post._id %>">Likes</button>
+        <button class="likedBy" value="<%= post._id %>" id="see-like-<%= post._id %>">Likes</button>
+        <button class="close-likes" id="close-like-<%= post._id %>" value="<%= post._id %>"
+        style="visibility: hidden">Close Likes</button>
         <div id="likes-<%= post._id %>" style="visibility: hidden">
             <ul id="likes-list-<%= post._id %>">
 
             </ul>
         </div>
-        <button class="button-like" value="<%= post._id %>">Like </button>
+        <button class="button-like" value="<%= post._id %>"><%= post.likeValue %></button>
     </div>
 
     <div>
-        <span>
-            <%= post.commentsCount %>
+        <span id="comment-count-<%= post._id %>">
+            <%= post.commentCount %>
         </span>
-        <button class="see-comments" value="<%= post._id %>" id="see-comment-<%= post._id %>">See Comments</button>
+        <button class="see-comments" value="<%= post._id %>" id="see-comment-<%= post._id %>">Comments</button>
         <button class="close-comments" value="<%= post._id %>" id="close-comment-<%= post._id %>"
          style="visibility: hidden" >Close comments</button>
         <div id="comments-<%= post._id %>" style="visibility: hidden">
@@ -27,6 +29,7 @@
             </ul>
         </div>
         <button class="leave-comment" value="<%= post._id %>">Leave a Comment</button>
+        <!-- Section that has elements to create a comment -->
         <div id="create-comment-<%= post._id %>" style="visibility: hidden">
             <h1>
                 Leave a comment:
