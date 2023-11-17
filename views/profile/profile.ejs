@@ -23,8 +23,12 @@
     </div>
     <div>
         <% if (!following && !ownProfile) { %>
-            <button id="follow-user" value="<%= requesteeUserId %>">Follow User</button>
-
+            <!-- Not following the user and it is not his own profile -->
+            <% if (requestedToFollow) { %>
+                <button id="remove-request-to-follow" value="<%= requesteeUsername %>"> Request Sent</button>
+            <% } else { %>
+                <button id="follow-user" value="<%= requesteeUserId %>">Follow User</button>
+            <% } %>
         <% } else if (following && !ownProfile) { %>
             <!-- You are following the user but it is not your own profile-->
             <button id="unfollow-user" value="<%= requesteeUsername %>">Unfollow user</button>

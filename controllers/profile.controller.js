@@ -16,6 +16,8 @@ async function getProfile(req, res, next) {
     // first retrieve the username from /:username
     const username = req.params.username;
     // get a user if existent
+
+    // User being the one that we need to render
     const user = await userModel.retrieveUserByUsername(username);
 
     // check if existent
@@ -31,6 +33,7 @@ async function getProfile(req, res, next) {
     // check if it is the requester's own profile
     let ownProfile = false;
     let following = false;
+    let requestedToFollow = false; // has the requestor already requested to follow the requestee ???
     const requesterId = req.session.userId; // this is a string
     if (requesterId === user._id.toString()) {
         // the same user
@@ -38,6 +41,16 @@ async function getProfile(req, res, next) {
     } else {
         // it is a different user
         following = profileUtils.isFollowed(user.followers, requesterId);
+        if (!following && !publicProfile) {
+            // requestor is not following the user and it is private
+            // check if it has already requested to follow
+            // console.log(`Following: ${following}`);
+            // console.log(`Public: ${publicProfile}`);
+            // console.log(`Id of requestee: ${user._id}`)
+            requestedToFollow = await userModel.checkPresentInRequestToFollow(new ObjectId(requesterId),
+                user._id);
+            // console.log(`Requested to Follow: ${requestedToFollow}`);
+        } // inner if
     }
 
     let posts = [];
@@ -70,7 +83,8 @@ async function getProfile(req, res, next) {
         requesteeUserId: user._id.toString(),
         imagePath: `/static/images/profilePictures/${user.profilePicture}`,
         userBio: user.bio,
-        publicProfile: publicProfile
+        publicProfile: publicProfile,
+        requestedToFollow: requestedToFollow
     }
     // console.log(posts);
     // render the page
@@ -97,13 +111,34 @@ async function postFollow(req, res,  next) {
     // else follow the user in the req.params
     const userMakingRequestToFollow = req.session.userId;
     const userBeingRequested = req.params.userId;
-    const followResult = await userModel.followUser(userMakingRequestToFollow, userBeingRequested);
 
-    const user = await userModel.getUser(new ObjectId(userBeingRequested));
+    // check if the user BeingRequested exists and if the profile is private
 
-    // else all good
-    res.redirect(`/user/${user.username}`)
-}
+    const requestee = await userModel.getUser(new ObjectId(userBeingRequested));
+
+    if (!requestee) {
+        // there is no such user
+        console.log('You are trying to follow a Ghost! -line 107 profile controller');
+        res.redirect('/')
+        return;
+    }
+
+    // the user to follow exists, check if private of public
+    if (requestee.public) {
+        // it is public, so follow
+        const followResult = await userModel.followUser(userMakingRequestToFollow, userBeingRequested);
+        // all good
+        res.redirect(`/user/${requestee.username}`);
+        return;
+    }
+
+    // the user is private so add the user to the list of requestTO follow
+    const result = await userModel.saveRequestToFollowUser(new ObjectId(userMakingRequestToFollow),
+        new ObjectId(userBeingRequested));
+
+    res.redirect(`/user/${requestee.username}`);
+
+} // here ends the method
 
 async function postUnfollow(req, res, next) {
     // check that the user is loggedIn
@@ -348,6 +383,172 @@ async function getFollowing(req, res, next) {
 
 } // here ends the method
 
+
+/**
+ * Retrieves all the follow requests for a given user
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+async function getFollowRequests(req, res, next) {
+    // check that the user is logged in
+    if (!checkLoggedIn(req)) {
+        // not logged in
+        res.redirect('/login');
+        return;
+    }
+
+    // get the userId from params and check that they are the same as session
+    const paramsUserId = req.params.userId;
+    const sessionUserId = req.session.userId;
+
+    // check the same
+    if (paramsUserId !== sessionUserId) {
+        // they are not the same
+        res.redirect('/');
+        return;
+    }
+
+    // now retrieve the request to follow users from the database
+    const user = await userModel.getUser(new ObjectId(sessionUserId));
+
+    // check if existen
+    if (!user) {
+        next(new Error('Trying to request notifications for non existent user - 418 profile.controller'));
+        return;
+    }
+
+    // all good
+    let requestToFollow = user.requestToFollow;
+    requestToFollow = await Promise.all(
+        requestToFollow.map(
+            // map function
+            async id => {
+                const user = await userModel.getUser(id);
+                return {
+                    username: user.username
+                };
+            } // here ends callback
+        ) // here ends map
+    ); // here neds Promise.all
+
+    // send the requestToFollow
+    res.json({requestToFollow: requestToFollow});
+} // here ends the method
+
+
+async function getAcceptFollowRequest(req, res, next) {
+    // chek login
+    if (!checkLoggedIn(req)) {
+        // not logged in
+        res.redirect('/login');
+        return;
+    }
+
+    // make sure the users exist
+    const userToRetreive = await userModel.getUser(new ObjectId(req.session.userId));
+    const userToRemove = await userModel.retrieveUserByUsername(req.params.username);
+
+    if (!userToRemove || !userToRetreive) {
+        // one of the users doesn't exist
+        next(
+            new Error('profile.controller line 456')
+        );
+        return;
+    }
+
+    // both users exist
+    // now do the operations
+    const result = await userModel.removeUserFromRequestToFollow(userToRemove._id, userToRetreive._id);
+
+    // check if the user was removed
+    if (!result) {
+        // no one was removed
+        res.json({result: false});
+        return;
+    }
+
+    // user was removed, now add it to the followers list
+    const followResult = await userModel.followUser(userToRemove._id.toString(),
+        userToRetreive._id.toString());
+    // all good
+    res.json({result: followResult});
+} // here ends the method
+
+
+async function getRejectFollowRequest(req, res, next) {
+    // check that the user is logged in
+    if (!checkLoggedIn(req)) {
+        // not logged in
+        res.redirect('/login');
+        return;
+    }
+
+    // make sure the users exist
+    const userToRetrieve = await userModel.getUser(new ObjectId(req.session.userId));
+    // console.log(`User that has the list:${userToRetrieve.username}`)
+    const userToRemove = await userModel.retrieveUserByUsername(req.params.username);
+    // console.log(`User that should be removed: ${userToRemove.username}`);
+    if (!userToRemove || !userToRetrieve) {
+        // one of the users doesn't exist
+        next(
+            new Error('profile.controller line 495')
+        );
+        return;
+    }
+
+    // both users exist
+    // now remove the user from the follow request
+    const result = await userModel.removeUserFromRequestToFollow(userToRemove._id, userToRetrieve._id);
+    // console.log(result);
+    res.json({result: result});
+} // here ends the method
+
+/**
+ * Removes a request to follow
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+async function getRemoveRequestToFollow(req, res, next) {
+    // check that the user is logged in
+    if (!checkLoggedIn(req)) {
+        // not logged in
+        res.redirect('/login');
+        return;
+    }
+
+    // user that is making the request to follow
+    const userMakingTheRequestToBeRemovedFromList = await userModel.getUser(new ObjectId(req.session.userId));
+    // user that has the list
+    const userWithRequestToFollowList = await userModel.retrieveUserByUsername(req.params.username);
+
+    if (!userWithRequestToFollowList || !userMakingTheRequestToBeRemovedFromList) {
+        // one of the users doesn't exist
+        next(
+            new Error('profile.controller line 523')
+        );
+        return;
+    }
+
+    // both users exist
+    // now remove the user from the follow request
+    const result = await userModel.removeUserFromRequestToFollow(userMakingTheRequestToBeRemovedFromList._id, userWithRequestToFollowList._id);
+
+    if (!result) {
+        // nothing was changed
+        res.json({result: false})
+        return;
+    }
+
+    // else
+    // we are going to redirect, because of the way the profile.ejs file is set up
+    // I am going to change that later, so that no reloading is needed
+    res.redirect(`/user/${userWithRequestToFollowList.username}`);
+} // here ends getRomveRequestToFollow
+
 module.exports = {
     getProfile: getProfile,
     postFollow: postFollow,
@@ -355,5 +556,9 @@ module.exports = {
     getEditProfile: getEditProfile,
     postEditProfile: postEditProfile,
     getFollowers: getFollowers,
-    getFollowing: getFollowing
+    getFollowing: getFollowing,
+    getFollowRequests: getFollowRequests,
+    getAcceptFollowRequest: getAcceptFollowRequest,
+    getRejectFollowRequest: getRejectFollowRequest,
+    getRemoveRequestToFollow: getRemoveRequestToFollow
 }

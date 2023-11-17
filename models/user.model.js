@@ -30,11 +30,10 @@ async function saveUser(email, password, username, bio, fullname) {
         posts: [],
         fullname: fullname,
         dateCreated: new Date().toISOString(),
-        public: true
+        public: true,
+        requestToFollow: []
 
     })
-    console.log(saveResult.insertedId);
-    console.log(saveResult)
 } // here ends the function
 
 /**
@@ -164,41 +163,41 @@ async function getUsers(users) {
 /**
  * Puts userRequesting in the followers list of userBeingreqeusted and puts userBeingRequested
  * in the following list of userRequesting
- * @param {String} userRequesting
- * @param {String} userBeingRequested
+ * @param {String} userRequestingId
+ * @param {String} userBeingRequestedId
  * @returns {Promise<boolean>}
  */
-async function followUser(userRequesting, userBeingRequested) {
+async function followUser(userRequestingId, userBeingRequestedId) {
     // get the user being requested
-    const requestee = await getUser(new ObjectId(userBeingRequested));
+    const requestee = await getUser(new ObjectId(userBeingRequestedId));
     // check if the userRequesting is already following
     const followersRequestee = requestee.followers;
-    if (profileUtils.isFollowed(followersRequestee, userRequesting)) {
+    if (profileUtils.isFollowed(followersRequestee, userRequestingId)) {
         // the user is already following, so
         return false;
     }
 
     // now check if the requester is already following the requestee
-    const requester = await getUser(new ObjectId(userRequesting));
+    const requester = await getUser(new ObjectId(userRequestingId));
     const followingRequester = requester.following;
 
-    if (profileUtils.isFollowing(followingRequester, userBeingRequested)) {
+    if (profileUtils.isFollowing(followingRequester, userBeingRequestedId)) {
         // requester already follows requestee, thus
         return false;
     }
 
     // otherwise the user is not being followed. Thus
     const resultOne = await db.getDatabase().collection(COLLECTION).updateOne({
-        _id: new ObjectId(userBeingRequested)
+        _id: new ObjectId(userBeingRequestedId)
     }, {
         // add the requester to the followers list
-        $push: {followers: new ObjectId(userRequesting)}
+        $push: {followers: new ObjectId(userRequestingId)}
     });
 
     const resultTwo = await db.getDatabase().collection(COLLECTION).updateOne({
-        _id: new ObjectId(userRequesting)
+        _id: new ObjectId(userRequestingId)
     }, {
-        $push: {following: new ObjectId(userBeingRequested)}
+        $push: {following: new ObjectId(userBeingRequestedId)}
     });
 
     return resultTwo.acknowledged && resultOne.acknowledged;
@@ -319,6 +318,68 @@ async function updatePublicStatus(id, value) {
         $set: {public: value}
     });
     return result.acknowledged;
+} // end updatePublicStatus
+
+/**
+ * Checks if the requestor has already requested to follow the requestee, if not it will add it to
+ * the corresponding document
+ * @param {ObjectId} requestor
+ * @param {ObjectId} requestee
+ * @returns {Promise<boolean>}
+ */
+async function saveRequestToFollowUser(requestor, requestee) {
+
+    // check if the requestor has already requested to follow the user
+    const requesteeUser = await getUser(requestee);
+
+    if (profileUtils.isFollowed(requesteeUser.requestToFollow, requestor.toString())) {
+        // the requestor has already requested to follow the user
+        return false;
+    }
+
+    // otheriwse continue
+    // add it to the database
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        // filter
+        _id: requestee
+    }, {
+        // what to change
+        $push: {requestToFollow: requestor}
+    });
+
+    return result.acknowledged;
+} // here ends saveReqeustToFollowUser
+
+/**
+ * Checks if requestor has already requested to follow requestee
+ * @param {ObjectId} requestor
+ * @param {ObjectId} requestee
+ * @returns {Promise<boolean>}
+ */
+async function checkPresentInRequestToFollow(requestor, requestee) {
+    // check if the requestor has already requested to follow the user
+    const requesteeUser = await getUser(requestee);
+    return profileUtils.isFollowed(requesteeUser.requestToFollow, requestor.toString());
+
+}
+
+/**
+ * Removes userToRemoveId from the requestToFollow list of userToRetrieveId
+ *
+ * @param {ObjectId} userToRemoveId
+ * @param {ObjectId} userToRetrieveId
+ * @returns {Promise<boolean>}
+ */
+async function removeUserFromRequestToFollow(userToRemoveId, userToRetrieveId) {
+
+    // const userWithList = await getUser(userToRetrieveId);
+    // const userToBeRemoved = await getUser(userToRemoveId);
+
+    const result = await db.getDatabase().collection(COLLECTION).updateOne(
+        {_id: userToRetrieveId},
+        {$pull: {requestToFollow: userToRemoveId} });
+    // console.log(result)
+    return result.modifiedCount > 0;
 }
 
 module.exports = {
@@ -335,5 +396,8 @@ module.exports = {
     unFollowUser: unFollowUser,
     updateBio: updateBio,
     updateProfilePicture: updateProfilePicture,
-    updatePublicStatus: updatePublicStatus
+    updatePublicStatus: updatePublicStatus,
+    saveRequestToFollowUser: saveRequestToFollowUser,
+    checkPresentInRequestToFollow: checkPresentInRequestToFollow,
+    removeUserFromRequestToFollow: removeUserFromRequestToFollow
 }

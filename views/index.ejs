@@ -1,5 +1,6 @@
 <%- include('./includes/head', {pageTitle: 'instagram'}) %>
 <script src="/public/scripts/searchScripts/searchUserSimple.js" defer></script>
+<script src="/public/scripts/notificationsScripts/showNotificationsIndexHTML.js" defer></script>
 </head>
 
 <body>
@@ -23,6 +24,19 @@
         </form>
 
         <div id="search-result"></div>
+
+        <% if (locals.loggedIn) {%>
+        <!-- IF the user is logged In, show the notifications option -->
+            <% if (amountNotifications > 0) { %>
+                <button id="show-notifications-button" value="<%= locals.userId %>">Show <%= amountNotifications %> Notifications</button>
+            <% } %>
+            <div id="notifications-div" style="visibility: hidden">
+                <ul id="requestToFollow-list"></ul>
+                <ul id="likes-list"></ul>
+                <ul id="comments-list"></ul>
+            </div>
+        <% } %>
+
     <ul>
         <% for (const post of posts) { %>
             <li>

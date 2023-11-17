@@ -23,4 +23,16 @@ router.get('/:username/followers', profileController.getFollowers);
 // get route to get the 'following' list
 router.get('/:username/following', profileController.getFollowing);
 
+// get route to get the 'follow-request' list
+router.get('/notifications/requestToFollow/:userId', profileController.getFollowRequests);
+
+// get route to accept a follow request
+router.get('/acceptFollow/:username', profileController.getAcceptFollowRequest);
+
+// get route to reject a follow request
+router.get('/rejectFollow/:username', profileController.getRejectFollowRequest);
+
+// get to remove the request to follow a user
+router.get('/removeRequestToFollow/:username', profileController.getRemoveRequestToFollow);
+
 module.exports = router;
