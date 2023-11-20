@@ -84,9 +84,10 @@ async function postCreatePost(req, res, next) {
 } // here ends createPost
 
 /**
- * Controller to like a post
- * @param req
- * @param res
+ * Controller to like or dislike a post
+ * If the post is already liked, it will dislike it
+ * @param {Express.Request} req
+ * @param {Express.Response} res
  * @param next
  * @returns {Promise<void>}
  */

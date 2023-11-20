@@ -31,7 +31,8 @@ async function saveUser(email, password, username, bio, fullname) {
         fullname: fullname,
         dateCreated: new Date().toISOString(),
         public: true,
-        requestToFollow: []
+        requestToFollow: [],
+        notifications: []
 
     })
 } // here ends the function
