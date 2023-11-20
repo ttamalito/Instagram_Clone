@@ -3,6 +3,7 @@ const userModel = require('../models/user.model');
 const postModel = require('../models/post.model');
 const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
+const connectionsMap = require('../utils/connectionsMap');
 
 /**
  * GET for /createPost
@@ -106,6 +107,25 @@ async function getLike(req, res, next) {
     // get the new like count
     const post = await postModel.getPost(new ObjectId(postId));
     const likeCount = post.likes.length;
+
+    // send a notification to the owner of the post
+    try {
+        const ownerOfThePost = await userModel.getUser(post.userId)
+        if (!ownerOfThePost) {
+            console.log(`line 114 post.controller user is non existent!`);
+        }
+        // all good, send a notification if the ownerOfThePost has a server-sent-connection
+        if (connectionsMap.has(ownerOfThePost._id.toString())) {
+            // he has a connection
+            const connection = connectionsMap.get(ownerOfThePost._id.toString());
+            connection.write('event: ' + 'like\n');
+            connection.write('data: ' + `You received a like from ${req.session.username}`);
+            connection.write('\n\n');
+        }
+    } catch (err) {
+        console.error(`line 125 post.controller ${err}`);
+    }
+
     // else all good.
     // redirect to the profile of the user
     res.json({likeCount: likeCount});
@@ -146,7 +166,7 @@ async function getLikedBy(req, res, next) {
         }
 
         // check if the requestor is following the ownerOfThePost
-        if (!profileUtils.isFollowed(ownerOfThePost.followers, req.session.userId)) {
+        if (!profileUtils.isFollowed(ownerOfThePost.followers, req.session.userId) && req.session.userId !== ownerOfThePost._id.toString()) {
             // not following
             // thus not able to see the likes
             res.redirect(`/user/${ownerOfThePost.username}`);

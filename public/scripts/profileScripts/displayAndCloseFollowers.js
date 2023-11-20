@@ -26,6 +26,9 @@ displayFollowersButton.addEventListener('click', async e => {
         }); // here ends fetch
 
     // check if redirect is needed
+
+    console.log(response)
+
     if (response.redirected) {
         window.location.href = response.url;
     }
@@ -33,6 +36,7 @@ displayFollowersButton.addEventListener('click', async e => {
     // get the data
     const data = await response.json();
     const followers = data.followers;
+    console.log(`displayAndCloseFollowers line 36: followers : ${followers}`);
     // populate the unordered list
     const followersList = document.querySelector('#followers-list');
     // remove all previous elements

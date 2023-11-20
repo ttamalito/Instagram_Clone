@@ -8,6 +8,8 @@ const db = require('./database/databaseConfig');
 const configSession = require('./sessions/session.config');
 const addCsrfToken = require('./middlewares/csrf-Token');
 const checkLoginMiddleware = require('./middlewares/check-login');
+const fetchNotificationsMiddleware = require('./middlewares/notifications-middleware');
+//const saveConnectionMiddleware = require('./middlewares/save-connection-server-sent-event');
 
 
 const PORT = 'mongodb://localhost:27017';
@@ -36,6 +38,10 @@ app.use(csurf());
 app.use(addCsrfToken)
 // check if the user is loggedIn
 app.use(checkLoginMiddleware);
+// fetch the notifications for the user
+app.use(fetchNotificationsMiddleware);
+
+//app.use(saveConnectionMiddleware);
 
 
 
@@ -50,6 +56,7 @@ db.connectToDataBase(PORT, databaseName).then(
     () => {
         // the promise was fulfilled
         app.listen(3000);
+        console.log('Listening on port 3000');
     }
 ).catch(
     (error) => {

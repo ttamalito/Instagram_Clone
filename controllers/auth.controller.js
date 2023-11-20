@@ -1,5 +1,8 @@
 const checkloggedInUtils = require('../utils/checkLoggedIn');
 const userModel = require('../models/user.model');
+
+const connectionsMap = require('../utils/connectionsMap');
+
 /**
  * Get route for /signup
  * @param req
@@ -114,6 +117,7 @@ async function postLogin(req, res, next) {
     // otherwise the user can log in
     req.session.userId = userEmail._id.toString();
     req.session.username = userEmail.username;
+    // console.log(res.getHeaders());
     req.session.save(() => {
         // redirect once the session was modified
         res.redirect('/');
@@ -121,6 +125,13 @@ async function postLogin(req, res, next) {
 
 } // here ends postLogin
 
+/**
+ * Removes the data from the session and deletes the
+ * server sent connection if the user had one
+ * @param req
+ * @param res
+ * @param next
+ */
 function postLogout(req, res, next) {
     // check that the user is loggedIn
     const loggedIn = checkloggedInUtils.checkLoggedIn(req);
@@ -131,9 +142,17 @@ function postLogout(req, res, next) {
         return;
     }
 
+    // delete the connection if the user had one
+    if (connectionsMap.has(req.session.userId)) {
+        // he has a connection
+        connectionsMap.delete(req.session.userId);
+    }
+
     // else delete the data from the session
     req.session.userId = null;
     req.session.username = null;
+
+
     // all good
     res.redirect('/');
 } // here ends postLogout

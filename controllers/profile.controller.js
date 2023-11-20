@@ -311,9 +311,10 @@ async function getFollowers(req, res, next) {
         res.redirect('/login');
         return;
     }
-    // check if the requestor is part of followers
+
+    // check if the requestor is part of followers and the requestor !== requestee
     const requestorFollowing = profileUtils.isFollowed(requestee.followers, req.session.userId);
-    if (!requestorFollowing) {
+    if (!requestorFollowing && req.session.userId !== requestee._id.toString()) {
         // not following
         res.redirect(`/user/${req.params.username}`);
         return;
@@ -372,7 +373,7 @@ async function getFollowing(req, res, next) {
     }
     // check if the requestor is part of followers
     const requestorFollowing = profileUtils.isFollowed(requestee.followers, req.session.userId);
-    if (!requestorFollowing) {
+    if (!requestorFollowing && req.session.userId !== requestee._id.toString()) {
         // not following
         res.redirect(`/user/${req.params.username}`);
         return;
