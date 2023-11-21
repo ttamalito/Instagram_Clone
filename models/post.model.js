@@ -1,5 +1,6 @@
 const db = require('../database/databaseConfig');
 const ObjectId = require('mongodb').ObjectId;
+const commentModel = require('../models/comment.model');
 
 const COLLECTION = 'posts';
 /**
@@ -74,9 +75,10 @@ async function likePost(postId, userId) {
 
 /**
  * Saves a comment from userId to the post with postId
- * @param {String} userId
- * @param {String} postId
- * @param {String} comment
+ * and stores the comment in the corresponding collection
+ * @param {String} userId id of the user posting the comment
+ * @param {String} postId id of the post receiving the comment
+ * @param {String} comment Text content of the comment
  * @returns {Promise<boolean>}
  */
 async function commentPost(userId, postId, comment) {
@@ -86,39 +88,39 @@ async function commentPost(userId, postId, comment) {
         dateCreated: new Date().toISOString(),
         likes: []
     }
-    // insert the comment to the database
+
+    // save the comment in the Comments collections
+    const commentId = await commentModel.saveComment(comm.userId, new ObjectId(postId), comment);
+
+    // insert the commentId to the database
     const result = await db.getDatabase().collection(COLLECTION).updateOne({
         // query parameters
         _id: new ObjectId(postId)
     }, {
         // what to update
-        $push: {comments: comm}
+        $push: {comments: commentId}
     });
 
     return result.acknowledged;
 } // here ends commentPost
-/*
-async function temporal() {
-    // get all the posts
-    let posts = await db.getDatabase().collection(COLLECTION).find();
-    posts = await posts.toArray();
-    console.log(posts);
-    posts = await Promise.all(posts.map(
-        async (post) => {
-            const result = await db.getDatabase().collection(COLLECTION).updateOne({
-                _id: post._id
-            }, {
-                // what to update
-                $set: {userId: new ObjectId(post.userId)}
-            }) // here ends updateOne
-            console.log(result);
-            return result;
-        }
-    ))
-}
 
+/**
+ * Removes a comment from the corresponding post
+ * @param {ObjectId} postId id of the post
+ * @param {ObjectId} commentId
+ * @returns {Promise<boolean>} true if the comment was removed
  */
+async function deleteComment(postId ,commentId) {
+    const result = await db.getDatabase().collection(COLLECTION).updateOne(
+        {
+            _id: postId
+        },
+        {
+            $pull: {comments: commentId}
+        });
 
+    return result.modifiedCount === 1;
+}
 
 
 module.exports = {
@@ -126,4 +128,5 @@ module.exports = {
     getPost: getPost,
     likePost: likePost,
     commentPost: commentPost,
+    deleteComment: deleteComment
 }

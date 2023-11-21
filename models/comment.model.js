@@ -22,11 +22,34 @@ async function saveComment(owner, post, text) {
         likes: []
     });
 
-    return result.insertedIdñ
+    return result.insertedId;
 
 } // here ends saveComment
 
+/**
+ * Deletes a comment from the database with the given commentId
+ * @param {ObjectId} commentId Id of the comment
+ * @returns {Promise<boolean>} true if the comment was deleted
+ */
+async function deleteComment(commentId) {
+    const result = await db.getDatabase().collection(COLLECTION).deleteOne({
+        _id: commentId
+    });
+    return result.deletedCount === 1;
+} // here ends the function
+
+/**
+ * Yields a comment with the given commentId
+ * @param {ObjectId} commentId id of the comment
+ * @returns {Promise<*>}
+ */
+async function getComment(commentId) {
+    return await db.getDatabase().collection(COLLECTION).findOne({_id: commentId})
+} // here ends the function
+
 
 module.exports = {
-    saveComment: saveComment
+    saveComment: saveComment,
+    deleteComment: deleteComment,
+    getComment: getComment
 }

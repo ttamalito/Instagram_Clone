@@ -5,7 +5,8 @@ const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
 const connectionsMap = require('../utils/connectionsMap');
 const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
-
+const commentModel = require('../models/comment.model');
+const {isFollowed} = require('../utils/profile.utils');
 /**
  * GET for /createPost
  * @param req
@@ -262,6 +263,80 @@ async function getComment(req, res, next) {
     // res.render('posts/comment', {post: {_id : req.params.postId}});
 } // here ends getComment
 
+/**
+ * Controller to delete a comment from the database
+ * it has 2 parameters in the URL commentId, postId
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+async function postDeleteComment(req, res, next) {
+    // check login
+    if (!checkLoggedIn.checkLoggedIn(req)) {
+        // not logged in
+        res.redirect('/login');
+        return;
+    }
+
+    // get the comment from the data base
+    const commentId = new ObjectId(req.params.commentId);
+    const comment = await commentModel.getComment(commentId);
+    // check that the comment exists
+    if (!comment) {
+        // comment is null
+        next(new Error(`line 286- post.controller--- no comment exists`));
+        return;
+    }
+
+    // the comment exists
+    // check that the owner of the comment is the one requesting to delete it
+    if (req.session.userId !== comment.owner.toString()) {
+        // not the same one
+        console.log(`User is trying to delete a comment that he didnt post-- line 294 post.controller`);
+        res.redirect('/');
+        return;
+    }
+
+    // check that the comment is part of the post
+    const postId = new ObjectId(req.params.postId);
+    // retrieve the post
+    const post = await postModel.getPost(postId);
+    if (!post) {
+        // there is no such post with that id
+        next(new Error(`Trying to delete comment of non-existent post-- line 305 post.controller`));
+        return;
+    }
+    // check if the commentId is part of the comments of the post
+    const partOfPost = isFollowed(post.comments, commentId.toString());
+    if (!partOfPost) {
+        // comment is not part of the post
+        next(new Error(`Comment is not part of post--line 313 post.controller`));
+        return;
+    }
+
+    // else all good
+    // delete the comment from the database
+    const deletedComment = await commentModel.deleteComment(commentId);
+
+    if (!deletedComment) {
+        next(new Error(`Comment could not be deleted- line 322 post.controller`));
+        return;
+    }
+
+    // remove the comment from the post
+    const removedComment = await postModel.deleteComment(postId, commentId);
+    if (!removedComment) {
+        // comment could not be removed from the post
+        next(new Error(`comment could not be removed from the post-- line 330 post.controller`));
+        return;
+    }
+
+    // else all good
+    res.json({result: true});
+
+} // here ends postDeleteComment
+
 
 module.exports = {
     getCreatePost: getCreatePost,
@@ -269,5 +344,6 @@ module.exports = {
     getLike: getLike,
     getLikedBy: getLikedBy,
     postComment: postComment,
-    getComment: getComment
+    getComment: getComment,
+    postDeleteComment: postDeleteComment
 }
