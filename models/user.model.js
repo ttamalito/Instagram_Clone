@@ -441,6 +441,66 @@ async function saveLikeNotification(notification) {
     return pushResult.modifiedCount > 0;
 } // here ends the function
 
+
+/**
+ * Saves a comment Notification to the database,
+ * if there are already 10 Notifications, it will delete the oldest notification and put a new one
+ * @param notification
+ * @returns {Promise<boolean>} true if the notification was added
+ */
+async function saveCommentNotification(notification) {
+    /*
+    notification = {
+    receiverUsername: username of the receiver
+    senderUsername: User that sent the notification,
+    date: Date of the notificatio
+    postId: id of the post that received the comment
+    imagePath: relative path of the image i.e. posts/filename,
+    commentId: id of the comment that was created
+    }
+     */
+
+    // check if the receiver has 10 notifications already
+    const receiver = await retrieveUserByUsername(notification.receiverUsername);
+
+    if (receiver.commentNotifications.length === 10) {
+        // the user has exactly 10 notifications
+        // remove the oldest one i.e. the first one
+        const popResult = await db.getDatabase().collection(COLLECTION).updateOne(
+            {
+                // filter
+                _id: receiver._id
+            },
+            {
+                // remove the first element of the array
+                $pop: {commentNotifications: -1}
+            });
+
+        // now add the new notification
+        const pushResult = await db.getDatabase().collection(COLLECTION).updateOne(
+            {
+                _id: receiver._id
+            },
+            {
+                $push: {commentNotifications: notification}
+            });
+
+        return pushResult.modifiedCount > 0;
+    } // end if user has 10 notifications
+
+    // the user has not 10 notifications
+    // add the notifiction
+    const pushResult = await db.getDatabase().collection(COLLECTION).updateOne(
+        {
+            _id: receiver._id
+        },
+        {
+            $push: {commentNotifications: notification}
+        });
+
+    return pushResult.modifiedCount > 0;
+} // here ends the function
+
 module.exports = {
     saveUser: saveUser,
     checkUniqueEmail: checkUniqueEmail,
@@ -459,5 +519,6 @@ module.exports = {
     saveRequestToFollowUser: saveRequestToFollowUser,
     checkPresentInRequestToFollow: checkPresentInRequestToFollow,
     removeUserFromRequestToFollow: removeUserFromRequestToFollow,
-    saveLikeNotification: saveLikeNotification
+    saveLikeNotification: saveLikeNotification,
+    saveCommentNotification: saveCommentNotification
 }
