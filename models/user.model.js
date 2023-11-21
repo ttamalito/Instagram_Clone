@@ -32,7 +32,8 @@ async function saveUser(email, password, username, bio, fullname) {
         dateCreated: new Date().toISOString(),
         public: true,
         requestToFollow: [],
-        notifications: []
+        likeNotifications: [],
+        commentNotifications: []
 
     })
 } // here ends the function
@@ -381,7 +382,64 @@ async function removeUserFromRequestToFollow(userToRemoveId, userToRetrieveId) {
         {$pull: {requestToFollow: userToRemoveId} });
     // console.log(result)
     return result.modifiedCount > 0;
-}
+} // here ends the method
+
+/**
+ * Saves a like Notification to the database,
+ * if there are already 10 Notifications, it will delete the oldest notification and put a new one
+ * @param notification
+ * @returns {Promise<boolean>} true if the notification was added
+ */
+async function saveLikeNotification(notification) {
+    /*
+    notification = {
+    receiverUsername: username of the receiver
+    senderUsername: User that sent the notification,
+    date: Date of the notificatio
+    postId: id of the post that received the like
+    imagePath: relative path of the image i.e. posts/filename
+    }
+     */
+
+    // check if the receiver has 10 notifications already
+    const receiver = await retrieveUserByUsername(notification.receiverUsername);
+    if (receiver.likeNotifications.length === 10) {
+        // the user has exactly 10 notifications
+        // remove the oldest one i.e. the first one
+        const popResult = await db.getDatabase().collection(COLLECTION).updateOne(
+            {
+                // filter
+                _id: receiver._id
+            },
+            {
+               // remove the first element of the array
+               $pop: {likeNotifications: -1}
+            });
+
+        // now add the new notification
+        const pushResult = await db.getDatabase().collection(COLLECTION).updateOne(
+            {
+                _id: receiver._id
+            },
+            {
+                $push: {likeNotifications: notification}
+            });
+
+        return pushResult.modifiedCount > 0;
+    } // end if user has 10 notifications
+
+    // the user has not 10 notifications
+    // add the notifiction
+    const pushResult = await db.getDatabase().collection(COLLECTION).updateOne(
+        {
+            _id: receiver._id
+        },
+        {
+            $push: {likeNotifications: notification}
+        });
+
+    return pushResult.modifiedCount > 0;
+} // here ends the function
 
 module.exports = {
     saveUser: saveUser,
@@ -400,5 +458,6 @@ module.exports = {
     updatePublicStatus: updatePublicStatus,
     saveRequestToFollowUser: saveRequestToFollowUser,
     checkPresentInRequestToFollow: checkPresentInRequestToFollow,
-    removeUserFromRequestToFollow: removeUserFromRequestToFollow
+    removeUserFromRequestToFollow: removeUserFromRequestToFollow,
+    saveLikeNotification: saveLikeNotification
 }

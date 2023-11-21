@@ -55,14 +55,12 @@ function saveConnection(req, res, next) {
     res.setHeader('Content-Type', 'text/event-stream');
     // send a confirmation
     const test = {
-        hello: 'Hello World',
+        hello: 'The server established connection with the client',
         marica: 'Mka'
     }
     const jsonTest = JSON.stringify(test);
     res.write('event: ' + 'testing\n');
     res.write('data: '+ jsonTest +  '\n\n');
-    // res.write('\n\n');
-    res.write('data: '+   'Hello from the server!\n\n');
     // save the response object
     connectionsMap.set(req.session.userId, res);
     //send(res);

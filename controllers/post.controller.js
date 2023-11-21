@@ -4,6 +4,7 @@ const postModel = require('../models/post.model');
 const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
 const connectionsMap = require('../utils/connectionsMap');
+const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
 
 /**
  * GET for /createPost
@@ -104,7 +105,7 @@ async function getLike(req, res, next) {
     // get the post id
     const postId = req.params.postId;
     // add a like to the post
-    const result = await postModel.likePost(postId, req.session.userId);
+    const likeResult = await postModel.likePost(postId, req.session.userId);
     // get the new like count
     const post = await postModel.getPost(new ObjectId(postId));
     const likeCount = post.likes.length;
@@ -113,19 +114,26 @@ async function getLike(req, res, next) {
     try {
         const ownerOfThePost = await userModel.getUser(post.userId)
         if (!ownerOfThePost) {
-            console.log(`line 114 post.controller user is non existent!`);
+            console.log(`line 117 post.controller user is non existent!`);
         }
         // all good, send a notification if the ownerOfThePost has a server-sent-connection
         if (connectionsMap.has(ownerOfThePost._id.toString())) {
             // he has a connection
-            const connection = connectionsMap.get(ownerOfThePost._id.toString());
-            connection.write('event: ' + 'like\n');
-            connection.write('data: ' + `You received a like from ${req.session.username}`);
-            connection.write('\n\n');
-        }
+            // check if the the like was added or removed
+            if (likeResult) {
+                // the post was liked
+                // notification object to send a notification
+                const notification = new Notification(
+                    typesOfNotificationEnum.LIKE,
+                    req.session.username,
+                    ownerOfThePost.username);
+                // send the like notification
+                notification.sendLikeNotification(ownerOfThePost._id.toString(), post);
+            } // here ends the if to see if the notification should be sent
+        } // the user has a connection
     } catch (err) {
         console.error(`line 125 post.controller ${err}`);
-    }
+    } // end of catch-try block
 
     // else all good.
     // redirect to the profile of the user

@@ -1,5 +1,5 @@
 const connectionsMap = require('./connectionsMap');
-
+const userModel = require('../models/user.model');
 /**
  * Class that encapsulates the logic to send and store notifications
  */
@@ -19,7 +19,7 @@ class Notification {
 
     /**
      * Checks if a given user has a current connection
-     * @param {String} userId
+     * @param {String} userId The id of the user
      * @returns {boolean} true if the user has a server-sent-connection
      */
     userHasConnection(userId) {
@@ -29,11 +29,17 @@ class Notification {
     /**
      * Sends a notification to the user with the given id
      * It is assumed that the user has a connection
-     * @param {String} receiverId
+     * @param {String} receiverId The id of the receiver
+     * @param post The post object that received the like
      * @throws {Error} if the receiverId has no connection
      * @returns {boolean}
      */
-    sendLikeNotification(receiverId) {
+    sendLikeNotification(receiverId, post) {
+        // check that the notification is of type like
+        if (typesOfNotificationEnum.LIKE !== this.notificationType) {
+            throw new Error('line 39 utils/Notification - Trying to send a forbidden like notification');
+        }
+
         const connection = connectionsMap.get(receiverId);
         if(!connection) {
             // the user has no connection, this is not supposed to happen
@@ -42,18 +48,35 @@ class Notification {
 
         // now send the like notification
         const data = {
-            username: this.sender,
-            date: new Date().toISOString()
+            receiverUsername: this.receiver,
+            senderUsername: this.sender,
+            date: new Date().toISOString(),
+            postId: post._id,
+            imagePath: post.imagePath,
         }
-        const jsonData = JSON.stringify(data);
-        // send the notification
-        connection.write('event: like\n');
-        connection.write('data: ' + jsonData + '\n\n');
+
+        // save the notification to the database and send it
+        userModel.saveLikeNotification(data).then(
+            res => {
+                if (res) {
+                    // the notification was saved
+                    // send the notification
+                    connection.write('event: like\n');
+                    connection.write('data: ' + 'You received a like!'+ '\n\n');
+                } else {
+                    // it wasnt saved for some reason
+                    throw new Error(`line 68 utils/Notification--Notification couldnt be saved`)
+                }
+            }
+        ).catch( err => {console.log(err)})
         return true
     } // here ends sendLikeNotification
 
 
-}
+
+
+
+} // here ends the class
 
 
 const typesOfNotificationEnum = {
@@ -63,4 +86,7 @@ const typesOfNotificationEnum = {
     NEW_FOLLOWER: Symbol('NEW_FOLLOWER')
 }
 
-module.exports = Notification;
+module.exports = {
+    Notification: Notification,
+    typesOfNotificationEnum: typesOfNotificationEnum
+}

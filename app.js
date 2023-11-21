@@ -8,7 +8,6 @@ const db = require('./database/databaseConfig');
 const configSession = require('./sessions/session.config');
 const addCsrfToken = require('./middlewares/csrf-Token');
 const checkLoginMiddleware = require('./middlewares/check-login');
-const fetchNotificationsMiddleware = require('./middlewares/notifications-middleware');
 //const saveConnectionMiddleware = require('./middlewares/save-connection-server-sent-event');
 
 
@@ -20,6 +19,8 @@ const authRoutes = require('./routes/authentication.routes');
 const postRoutes = require('./routes/post.routes');
 const profileRoutes = require('./routes/profile.routes');
 const searchRoutes = require('./routes/search.routes');
+const notificationRoutes = require('./routes/notification.routes');
+
 const app = express();
 
 // serve css and js files
@@ -38,8 +39,6 @@ app.use(csurf());
 app.use(addCsrfToken)
 // check if the user is loggedIn
 app.use(checkLoginMiddleware);
-// fetch the notifications for the user
-app.use(fetchNotificationsMiddleware);
 
 //app.use(saveConnectionMiddleware);
 
@@ -51,6 +50,7 @@ app.use(authRoutes);
 app.use(postRoutes);
 app.use('/user',profileRoutes);
 app.use('/search', searchRoutes);
+app.use(notificationRoutes);
 // start listening, if we connect to the database
 db.connectToDataBase(PORT, databaseName).then(
     () => {
