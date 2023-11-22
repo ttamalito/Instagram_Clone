@@ -33,7 +33,8 @@ async function saveUser(email, password, username, bio, fullname) {
         public: true,
         requestToFollow: [],
         likeNotifications: [],
-        commentNotifications: []
+        commentNotifications: [],
+        followNotifications: []
 
     })
 } // here ends the function
@@ -167,10 +168,10 @@ async function getUsers(users) {
  * in the following list of userRequesting
  * @param {String} userRequestingId
  * @param {String} userBeingRequestedId
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>} true if the operation was performed successfully
  */
 async function followUser(userRequestingId, userBeingRequestedId) {
-    // get the user being requested
+    // get the user being requested to be followed
     const requestee = await getUser(new ObjectId(userBeingRequestedId));
     // check if the userRequesting is already following
     const followersRequestee = requestee.followers;
@@ -202,8 +203,8 @@ async function followUser(userRequestingId, userBeingRequestedId) {
         $push: {following: new ObjectId(userBeingRequestedId)}
     });
 
-    return resultTwo.acknowledged && resultOne.acknowledged;
-}
+    return resultTwo.modifiedCount > 0 && resultOne.modifiedCount > 0;
+} // here ends the function
 
 /**
  * Removes requesterId frome the followers list of the requestee,
@@ -327,7 +328,7 @@ async function updatePublicStatus(id, value) {
  * the corresponding document
  * @param {ObjectId} requestor
  * @param {ObjectId} requestee
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>} true if the operation was performed successfully
  */
 async function saveRequestToFollowUser(requestor, requestee) {
 
@@ -349,7 +350,7 @@ async function saveRequestToFollowUser(requestor, requestee) {
         $push: {requestToFollow: requestor}
     });
 
-    return result.acknowledged;
+    return result.modifiedCount === 1;
 } // here ends saveReqeustToFollowUser
 
 /**
@@ -501,6 +502,68 @@ async function saveCommentNotification(notification) {
     return pushResult.modifiedCount > 0;
 } // here ends the function
 
+/**
+ * Saves a follow Notification to the document of the receiverUsername
+ * @param {{receiverUsername: String,
+ *          senderUsername: String,
+ *          date: Date,
+ *          imagePath: String} } notification
+ * @returns {Promise<boolean>} true if the operation was completed
+ */
+async function saveFollowNotification(notification) {
+
+    /*
+    notification = {
+        receiverUsername: username of the receiver
+        senderUsername: User that sent the notification,
+        date: Date of the notification
+        imagePath: relative path of the image i.e. profilePictures/filename, (of the sender)
+    }
+ */
+
+    // check if the receiver has 10 notifications already
+    const receiver = await retrieveUserByUsername(notification.receiverUsername);
+
+    if (receiver.followNotifications.length === 10) {
+        // the user has exactly 10 notifications
+        // remove the oldest one i.e. the first one
+        const popResult = await db.getDatabase().collection(COLLECTION).updateOne(
+            {
+                // filter
+                _id: receiver._id
+            },
+            {
+                // remove the first element of the array
+                $pop: {followNotifications: -1}
+            });
+
+        // now add the new notification
+        const pushResult = await db.getDatabase().collection(COLLECTION).updateOne(
+            {
+                _id: receiver._id
+            },
+            {
+                $push: {followNotifications: notification}
+            });
+
+        return pushResult.modifiedCount > 0;
+    } // end if user has 10 notifications
+
+    // the user has not 10 notifications
+    // add the notification
+    const pushResult = await db.getDatabase().collection(COLLECTION).updateOne(
+        {
+            _id: receiver._id
+        },
+        {
+            $push: {followNotifications: notification}
+        });
+
+    return pushResult.modifiedCount > 0;
+
+
+} // here ends the function
+
 module.exports = {
     saveUser: saveUser,
     checkUniqueEmail: checkUniqueEmail,
@@ -520,5 +583,6 @@ module.exports = {
     checkPresentInRequestToFollow: checkPresentInRequestToFollow,
     removeUserFromRequestToFollow: removeUserFromRequestToFollow,
     saveLikeNotification: saveLikeNotification,
-    saveCommentNotification: saveCommentNotification
+    saveCommentNotification: saveCommentNotification,
+    saveFollowNotification: saveFollowNotification
 }

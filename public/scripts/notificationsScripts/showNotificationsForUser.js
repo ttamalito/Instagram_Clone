@@ -272,6 +272,6 @@ function extractAndIncrementAmountOfNotifications(amount, toAdd = 0) {
  * @returns {number} The amount of remaining notifications
  */
 function extractAmountOfNotifications(textContent) {
-    const separatedArray = amount.split(' ');
+    const separatedArray = textContent.split(' ');
     return parseInt(separatedArray[1]);
 }

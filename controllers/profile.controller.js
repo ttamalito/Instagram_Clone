@@ -4,6 +4,7 @@ const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
 const {checkLoggedIn} = require("../utils/checkLoggedIn");
 const LikeCommentEnum = require('../utils/LikeCommentEnum');
+const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
 
 /**
  * Displays the user profile
@@ -95,6 +96,7 @@ async function getProfile(req, res, next) {
 
 /**
  * Controller to follow a user with a post request
+ * Sends the corresponding notification to the user
  * @param req
  * @param res
  * @param next
@@ -118,15 +120,28 @@ async function postFollow(req, res,  next) {
 
     if (!requestee) {
         // there is no such user
-        console.log('You are trying to follow a Ghost! -line 107 profile controller');
+        console.log('You are trying to follow a Ghost! -line 123 profile controller');
         res.redirect('/')
         return;
     }
+    // user wanting to follow
+    const sender = await userModel.getUser(new ObjectId(userMakingRequestToFollow));
 
     // the user to follow exists, check if private of public
     if (requestee.public) {
         // it is public, so follow
         const followResult = await userModel.followUser(userMakingRequestToFollow, userBeingRequested);
+
+        if (followResult) {
+            // the operation was resolved successfully
+            const followNotification = new Notification(typesOfNotificationEnum.NEW_FOLLOWER,
+                sender.username, requestee.username);
+            // make sure that the receiver has a connection
+            if (followNotification.userHasConnection(requestee._id.toString())) {
+                const notificationResult = followNotification.sendReceivedFollowNotification(requestee._id.toString());
+            }
+
+        } // if followResult
         // all good
         res.redirect(`/user/${requestee.username}`);
         return;
@@ -135,6 +150,17 @@ async function postFollow(req, res,  next) {
     // the user is private so add the user to the list of requestTO follow
     const result = await userModel.saveRequestToFollowUser(new ObjectId(userMakingRequestToFollow),
         new ObjectId(userBeingRequested));
+
+    // check if the operation was performed succesfully
+    if (result) {
+        // create a notification
+        const followRequestNotification = new Notification(typesOfNotificationEnum.FOLLOW_REQUEST,
+            sender.username, requestee.username);
+        // check that the requestee has a connection
+        if (followRequestNotification.userHasConnection(requestee._id.toString())) {
+            const followRequestResult = followRequestNotification.sendFollowRequestNotification(requestee._id.toString());
+        } // end if( userhasConnection)
+    } // end if (result)
 
     res.redirect(`/user/${requestee.username}`);
 

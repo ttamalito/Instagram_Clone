@@ -21,7 +21,7 @@ async function savePost(userId, imageFileName, caption) {
         comments: [],
         dateCreated: date
     })
-    // Type of this is a mystery
+    // Type of this is an ObjectId
     return saveResult.insertedId;
 }
 
@@ -73,13 +73,14 @@ async function likePost(postId, userId) {
     return result.acknowledged;
 }
 
+
 /**
  * Saves a comment from userId to the post with postId
  * and stores the comment in the corresponding collection
  * @param {String} userId id of the user posting the comment
  * @param {String} postId id of the post receiving the comment
  * @param {String} comment Text content of the comment
- * @returns {Promise<boolean>}
+ * @returns {Promise<{result: boolean, commentId: ObjectId}>}
  */
 async function commentPost(userId, postId, comment) {
     const comm = {
@@ -101,7 +102,8 @@ async function commentPost(userId, postId, comment) {
         $push: {comments: commentId}
     });
 
-    return result.acknowledged;
+    return {result:result.modifiedCount > 0,
+            commentId: commentId};
 } // here ends commentPost
 
 /**
@@ -122,11 +124,36 @@ async function deleteComment(postId ,commentId) {
     return result.modifiedCount === 1;
 }
 
+/**
+ * Returns a comment with the corresponding id if it is part of the post
+ * with the given id
+ * @param {ObjectId} postId
+ * @param {ObjectId} commentId
+ * @returns {Promise<Comment|null>}
+ */
+async function getComment(postId, commentId) {
+    // check that the comment is part of the post
+    const post = await getPost(postId);
+    if (!post) {
+        // no post
+        return null;
+    }
+    for (const comment of post.comments) {
+        if (comment.equals(commentId)) {
+            // we found the comment
+            return await commentModel.getComment(commentId);
+        }
+    }
+    // else the comment is not part of the post
+    return null;
+} // here ends the function
+
 
 module.exports = {
     savePost: savePost,
     getPost: getPost,
     likePost: likePost,
     commentPost: commentPost,
-    deleteComment: deleteComment
+    deleteComment: deleteComment,
+    getComment: getComment
 }

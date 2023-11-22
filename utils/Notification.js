@@ -1,5 +1,6 @@
 const connectionsMap = require('./connectionsMap');
 const userModel = require('../models/user.model');
+
 /**
  * Class that encapsulates the logic to send and store notifications
  */
@@ -101,10 +102,12 @@ class Notification {
     /**
      * Sends a notification to the receiver that a user started following him
      * Assumes that the receiver has a connection
+     * It saves the notification to the document of the receiver
      * @param {String} receiverId
-     * @returns {boolean}
+     * @param {String} imagePath path of the profile picture of the sender
+     * @returns {boolean} true if the notification was sent
      */
-    sendReceivedFollowNotification(receiverId) {
+    sendReceivedFollowNotification(receiverId, imagePath) {
 
         // check correct type of notification
         if (!this.#checkCorrectTypeOfNotification(typesOfNotificationEnum.NEW_FOLLOWER)) {
@@ -118,12 +121,28 @@ class Notification {
             throw new Error(`No connection for user -- line 118 utils/Notification`);
         }
 
-        // send the notification
-        const connection = connectionsMap.get(receiverId);
-        connection.write('event: ' + 'new_follower\n');
-        connection.write('data: ' + 'You have a new follower\n\n');
-        return true;
-    }
+        const data = {
+            receiverUsername: this.receiver,
+            senderUsername: this.sender,
+            date: new Date().toISOString(),
+            imagePath: imagePath
+        }
+
+        // save the notification
+        userModel.saveFollowNotification(data).then( res => {
+            if (res) {
+                // it was saved successfully
+                // send the notification
+                const connection = connectionsMap.get(receiverId);
+                connection.write('event: ' + 'new_follower\n');
+                connection.write('data: ' + 'You have a new follower' + `${this.sender}\n\n`);
+                return true;
+            } else {
+                return false;
+            }
+        }).catch( err => {console.log(err); return false;})
+
+    } // here ends sendReceivedFollowNotification
 
     /**
      * Sends a notification to the receiver that he received a comment
@@ -136,11 +155,11 @@ class Notification {
     sendCommentNotification(receiverId, comment, post) {
         // check the correct type of notification
         if (!this.#checkCorrectTypeOfNotification(typesOfNotificationEnum.COMMENT)) {
-            throw new Error(`Not the correct type of notification- line 131 utils/Notifications`);
+            throw new Error(`Not the correct type of notification- line 139 utils/Notifications`);
         }
         // user should have a connection
         if (!this.userHasConnection(receiverId)) {
-            throw new Error(`user should have a connection - line 135 utils/Notifications`);
+            throw new Error(`user should have a connection - line 143 utils/Notifications`);
         }
 
         // save the data to the corresponding docuemnt in the database
@@ -162,7 +181,7 @@ class Notification {
                     connection.write('data: ' + 'You received a comment\n\n');
                 } else {
                     // notification was not saved
-                    throw new Error(`Comment notification not saved--line 157 utils/Notification`);
+                    throw new Error(`Comment notification not saved--line 165 utils/Notification`);
                 }
             }
         ).catch( err => {console.log(err)})

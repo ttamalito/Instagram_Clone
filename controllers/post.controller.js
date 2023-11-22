@@ -218,7 +218,7 @@ async function postComment(req, res, next) {
     // now save the comment to the database
     const result = await postModel.commentPost(userId, postId, comment);
 
-    if (!result) {
+    if (!result.result) {
         // something went wrong when saving the post
         next(new Error('Could comment Post in post.controller.postComment'));
         return;
@@ -228,6 +228,29 @@ async function postComment(req, res, next) {
     const post = await postModel.getPost(new ObjectId(postId));
     const commentCount = post.comments.length;
 
+    // get the newly added comment
+    const commentObject = await postModel.getComment(post._id, result.commentId);
+    if (!commentObject) {
+        // there is no such comment
+        next(new Error(`Newly added comment cannot be found--line 235 post.controller`));
+        return;
+    }
+
+    // user that posted the comment
+    const sender = await userModel.getUser(new ObjectId(userId));
+
+    // user that owns the post that received a comment
+    const receiver = await userModel.getUser(post.userId);
+
+    // send the notification
+    const commentNotification = new Notification(typesOfNotificationEnum.COMMENT,
+        sender.username, receiver.username);
+
+    // check that the reciever has a connection
+    if (commentNotification.userHasConnection(receiver._id.toString())) {
+        const commentResult = commentNotification.sendCommentNotification(receiver._id.toString(),
+            commentObject, post);
+    }
     // else all good
     res.json({commentCount: commentCount});
 } // here ends postComment
@@ -250,10 +273,12 @@ async function getComment(req, res, next) {
     const post = await postModel.getPost(new ObjectId(postId));
     // console.log(comments)
     const comments = await Promise.all(post.comments.map(async comment => {
-        const user = await userModel.getUser(comment.userId);
+        // get the comment
+        const commentObject = await postModel.getComment(post._id, comment)
+        const user = await userModel.getUser(commentObject.userId);
         // define a new object
         return {
-            comment: comment.comment,
+            comment: commentObject.comment,
             user: user.username
         };
     }))
@@ -328,7 +353,7 @@ async function postDeleteComment(req, res, next) {
     const removedComment = await postModel.deleteComment(postId, commentId);
     if (!removedComment) {
         // comment could not be removed from the post
-        next(new Error(`comment could not be removed from the post-- line 330 post.controller`));
+        next(new Error(`comment could not be removed from the post-- line 331 post.controller`));
         return;
     }
 
