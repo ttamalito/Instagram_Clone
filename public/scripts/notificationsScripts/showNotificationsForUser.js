@@ -22,6 +22,13 @@ if (notificationsButton) {
 
             // fetch the likes Notification
             fetchLikesNotifications().then().catch()
+
+            // fetch the comments notifications
+            fetchCommentsNotifications().then().catch()
+
+            // fetch the follow notifications
+            fetchFollowNotifications().then().catch()
+
             // now show the div
             notificationsDiv.style.visibility = 'visible';
 
@@ -198,7 +205,10 @@ async function fetchFollowRequestNotifications() {
     } // here ends the for loop
 } // here ends the function
 
-
+/**
+ * Fetches all the likes notifications that a user has and populates the list
+ * @returns {Promise<void>}
+ */
 async function fetchLikesNotifications() {
 
     // fetch the likes
@@ -253,6 +263,102 @@ async function fetchLikesNotifications() {
 
 } // here ends the function
 
+/**
+ * Fetches all comment notifications
+ * @returns {Promise<void>}
+ */
+async function fetchCommentsNotifications() {
+    // fetch the comments
+    const commentsResponse = await fetch(`http://localhost:3000/fetchCommentNotifications`, {
+        method: 'GET',
+        redirect: 'follow'
+    }) // here ends fetch
+
+    // check if we need to redirect
+    if (commentsResponse.redirected) {
+        window.location.href = commentsResponse.url;
+    }
+
+    // get the data
+    const data = await commentsResponse.json();
+
+    // get the HTML list to show the likes
+    const notificationsCommentsList = document.querySelector('#comments-list');
+    // empty the list first
+    removeAllChildNodes(notificationsCommentsList);
+    // populate the list
+    for (const notification of data.notifications) {
+        const commentContainer = document.createElement('div');
+        const anchorUser = document.createElement('a');
+        anchorUser.href = `/user/${notification.senderUsername}`;
+        anchorUser.textContent = notification.senderUsername;
+        // add the anchor user to the container
+        commentContainer.append(anchorUser);
+
+        // simple paragraph
+        const comment = document.createElement('p');
+        comment.textContent = `commented your post`;
+        commentContainer.append(comment);
+
+        // the image
+        const image = document.createElement('img');
+        image.src = `/static/images/${notification.imagePath}`;
+        image.style.width = '20px'
+        image.style.height = '20px'
+        commentContainer.append(image)
+
+
+        // add the container to a li and to the ul
+        const li = document.createElement('li');
+        li.append(commentContainer);
+        notificationsCommentsList.append(li);
+    } // here ends the for loop of notifications
+} // here ends the function
+
+/**
+ * Fetches all the follow notifications for a user
+ * and populates the list
+ * @returns {Promise<void>}
+ */
+async function fetchFollowNotifications() {
+    // fetch the follow notification
+    const followResponse = await fetch(`http://localhost:3000/fetchFollowNotifications`, {
+        method: 'GET',
+        redirect: 'follow'
+    }) // here ends fetch
+
+    // check if we need to redirect
+    if (followResponse.redirected) {
+        window.location.href = followResponse.url;
+    }
+
+    // get the data
+    const data = await followResponse.json();
+
+    // get the HTML list to show the likes
+    const notificationsFollowList = document.querySelector('#follow-list');
+    // empty the list first
+    removeAllChildNodes(notificationsFollowList);
+    // populate the list
+    for (const notification of data.notifications) {
+        const followContainer = document.createElement('div');
+        const anchorUser = document.createElement('a');
+        anchorUser.href = `/user/${notification.senderUsername}`;
+        anchorUser.textContent = notification.senderUsername;
+        // add the anchor user to the container
+        followContainer.append(anchorUser);
+
+        // simple paragraph
+        const p = document.createElement('p');
+        p.textContent = `started following you`;
+        followContainer.append(p);
+
+        // add the container to a li and to the ul
+        const li = document.createElement('li');
+        li.append(followContainer);
+        notificationsFollowList.append(li);
+    } // here ends the for loop of notifications
+} // here ends the function
 
 /**
  * Extracts the amount of notifications from the string 'Show X Notifications'

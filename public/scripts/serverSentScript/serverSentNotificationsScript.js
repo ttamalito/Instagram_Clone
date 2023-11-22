@@ -15,6 +15,7 @@ sse.addEventListener('testing', (e) => {
 
 // event to receive a like
 sse.addEventListener('like', e => {
+    console.log(e);
     console.log('You received a like!');
     const data = e.data;
     console.log(data)
