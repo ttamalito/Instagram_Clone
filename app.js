@@ -10,6 +10,9 @@ const addCsrfToken = require('./middlewares/csrf-Token');
 const checkLoginMiddleware = require('./middlewares/check-login');
 //const saveConnectionMiddleware = require('./middlewares/save-connection-server-sent-event');
 
+// import the webSocket
+const runWebSocket = require('./webSockets/mainWebSocket');
+
 
 const PORT = 'mongodb://localhost:27017';
 const databaseName = 'instagram';
@@ -51,12 +54,19 @@ app.use(postRoutes);
 app.use('/user',profileRoutes);
 app.use('/search', searchRoutes);
 app.use(notificationRoutes);
+
+
+// the http server
+let server;
 // start listening, if we connect to the database
 db.connectToDataBase(PORT, databaseName).then(
     () => {
         // the promise was fulfilled
-        app.listen(3000);
+        server = app.listen(3000);
         console.log('Listening on port 3000');
+        runWebSocket(server);
+        console.log(`WebSocket has been initialized`);
+
     }
 ).catch(
     (error) => {
