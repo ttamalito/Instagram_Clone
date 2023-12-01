@@ -12,7 +12,7 @@ const checkLoginMiddleware = require('./middlewares/check-login');
 
 // import the webSocket
 const runWebSocket = require('./webSockets/mainWebSocket');
-
+const initiateWebSocketServer = require('./webSockets/webSocketServer');
 
 const PORT = 'mongodb://localhost:27017';
 const databaseName = 'instagram';
@@ -23,6 +23,7 @@ const postRoutes = require('./routes/post.routes');
 const profileRoutes = require('./routes/profile.routes');
 const searchRoutes = require('./routes/search.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const chatRoutes = require('./routes/chat.routes');
 
 const app = express();
 
@@ -54,7 +55,7 @@ app.use(postRoutes);
 app.use('/user',profileRoutes);
 app.use('/search', searchRoutes);
 app.use(notificationRoutes);
-
+app.use('/chat', chatRoutes);
 
 // the http server
 let server;
@@ -64,8 +65,7 @@ db.connectToDataBase(PORT, databaseName).then(
         // the promise was fulfilled
         server = app.listen(3000);
         console.log('Listening on port 3000');
-        runWebSocket(server);
-        console.log(`WebSocket has been initialized`);
+        initiateWebSocketServer(server);
 
     }
 ).catch(

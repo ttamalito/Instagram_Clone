@@ -6,6 +6,8 @@ const {checkLoggedIn} = require("../utils/checkLoggedIn");
 const LikeCommentEnum = require('../utils/LikeCommentEnum');
 const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
 
+
+
 /**
  * Displays the user profile
  * @param {Express.Request} req
@@ -87,7 +89,7 @@ async function getProfile(req, res, next) {
         publicProfile: publicProfile,
         requestedToFollow: requestedToFollow
     }
-    // console.log(posts);
+
     // render the page
     res.render('profile/profile', views);
     // res.send('whatever')

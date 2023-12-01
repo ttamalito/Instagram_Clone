@@ -20,6 +20,8 @@ function initializeWebSocketServer(httpServer) {
 function addEventsToWebSocket(webSocketServer) {
     webSocketServer.on('request', req => {
         console.log('Someone requested to create a websocket connection');
+        console.log(req.httpRequest);
+
         let connection = req.accept(null, req.origin);
         connection.on('close', e => console.log('Connection closed'));
         connection.on('message', e => {
@@ -28,8 +30,10 @@ function addEventsToWebSocket(webSocketServer) {
         connection.send('Hello from the server using websocket!');
     }) // on request
 
+    // connection event
     webSocketServer.on('connect', connection => {
         console.log('Someone connected!')
+        console.log(connection.socket.remoteAddress);
         connection.send('Hello from the server using websocket');
     });
 } // end of the function

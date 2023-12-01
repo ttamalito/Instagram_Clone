@@ -1,0 +1,19 @@
+<%- include('../includes/head', {pageTitle: 'Chats'}) %>
+<script src="/public/scripts/webSocketScripts/chatWebSocketScript.js" defer></script>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <h1>
+        Your messages
+    </h1>
+    <button id="send-test-message">Send something to the server</button>
+    <!-- Check if the user is logged in (double security)-->
+    <% if (locals.loggedIn) { %>
+        <button id="web-socket-connection-username" value="<%= locals.userId %>" style="visibility: hidden"></button>
+        <ul id="active-chats"></ul>
+    <% } %>
+</main>
+<%- include('../includes/footer') %>
