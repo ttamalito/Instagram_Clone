@@ -1,5 +1,6 @@
 const connectionsMap = require('./connectionsMap');
 const userModel = require('../models/user.model');
+const userConnections = require('../utils/userConnections');
 
 /**
  * Class that encapsulates the logic to send and store notifications
@@ -19,17 +20,17 @@ class Notification {
     } // here ends the constructor
 
     /**
-     * Checks if a given user has a current connection
+     * Checks if a given user has a current SSE connection
      * @param {String} userId The id of the user
      * @returns {boolean} true if the user has a server-sent-connection
      */
     userHasConnection(userId) {
-        return connectionsMap.has(userId);
+        return userConnections.userHasServerSentEventConnection(userId);
     }
 
     /**
      * Sends a notification to the user with the given id
-     * It is assumed that the user has a connection
+     * It is assumed that the user has a SSE connection
      * @param {String} receiverId The id of the receiver
      * @param post The post object that received the like
      * @throws {Error} if the receiverId has no connection
@@ -41,10 +42,10 @@ class Notification {
             throw new Error('line 39 utils/Notification - Trying to send a forbidden like notification');
         }
 
-        const connection = connectionsMap.get(receiverId);
+        const connection = userConnections.getSSEConnectionForUser(receiverId);
         if(!connection) {
             // the user has no connection, this is not supposed to happen
-            throw new Error('line 39 utils.Notification');
+            throw new Error('line 48 utils.Notification');
         }
 
         // now send the like notification
@@ -66,7 +67,7 @@ class Notification {
                     connection.write('data: ' + 'You received a like!'+ '\n\n');
                 } else {
                     // it wasnt saved for some reason
-                    throw new Error(`line 68 utils/Notification--Notification couldnt be saved`)
+                    throw new Error(`line 70 utils/Notification--Notification couldnt be saved`)
                 }
             }
         ).catch( err => {console.log(err)})
@@ -86,12 +87,12 @@ class Notification {
             throw new Error(`Impossible to send follow request notification- line 85 utils/Notification`);
         }
         // make sure that the receiver has a connection
-        if (!connectionsMap.has(receiverId)) {
-            throw new Error(`User has no connection-- line 89 utils/Notification`)
+        if (!userConnections.userHasServerSentEventConnection(receiverId)) {
+            throw new Error(`User has no connection-- line 91 utils/Notification`)
         }
 
         // get the connection and send the notification
-        const connection = connectionsMap.get(receiverId);
+        const connection = userConnections.getSSEConnectionForUser(receiverId);
 
         connection.write('event: ' + 'follow_request\n');
         connection.write('data: ' + 'Received a follow request' + '\n\n');
@@ -133,7 +134,7 @@ class Notification {
             if (res) {
                 // it was saved successfully
                 // send the notification
-                const connection = connectionsMap.get(receiverId);
+                const connection = userConnections.getSSEConnectionForUser(receiverId);
                 connection.write('event: ' + 'new_follower\n');
                 connection.write('data: ' + 'You have a new follower' + `${this.sender}\n\n`);
                 return true;
@@ -176,7 +177,7 @@ class Notification {
             res => {
                 if (res) {
                     // notification was save
-                    const connection = connectionsMap.get(receiverId);
+                    const connection = userConnections.getSSEConnectionForUser(receiverId);
                     connection.write('event: ' + 'comment\n');
                     connection.write('data: ' + 'You received a comment\n\n');
                 } else {

@@ -3,7 +3,7 @@ const userModel = require('../models/user.model');
 const postModel = require('../models/post.model');
 const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
-const connectionsMap = require('../utils/connectionsMap');
+const userConnections = require('../utils/userConnections');
 const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
 const commentModel = require('../models/comment.model');
 const {isFollowed} = require('../utils/profile.utils');
@@ -118,7 +118,7 @@ async function getLike(req, res, next) {
             console.log(`line 117 post.controller user is non existent!`);
         }
         // all good, send a notification if the ownerOfThePost has a server-sent-connection
-        if (connectionsMap.has(ownerOfThePost._id.toString())) {
+        if (userConnections.userHasServerSentEventConnection(ownerOfThePost._id.toString())) {
             // he has a connection
             // check if the the like was added or removed
             if (likeResult) {
@@ -133,7 +133,7 @@ async function getLike(req, res, next) {
             } // here ends the if to see if the notification should be sent
         } // the user has a connection
     } catch (err) {
-        console.error(`line 125 post.controller ${err}`);
+        console.error(`line 136 post.controller ${err}`);
     } // end of catch-try block
 
     // else all good.

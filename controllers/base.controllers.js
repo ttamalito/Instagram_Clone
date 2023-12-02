@@ -1,10 +1,11 @@
-const userModel = require('../models/user.model');
+
 const {checkLoggedIn} = require("../utils/checkLoggedIn");
-const ObjectId = require('mongodb').ObjectId;
-const connectionsMap = require('../utils/connectionsMap');
 const fs = require('fs');
 const path = require('path');
 const readline = require("readline");
+const userConnections = require('../utils/userConnections');
+
+
 /**
  *
  * @param req
@@ -51,12 +52,9 @@ function saveConnection(req, res, next) {
         return;
     }
 
+    // the userId
+    const userId = req.session.userId;
 
-    // check if the user has already a connection...
-    if (connectionsMap.has(req.session.userId)) {
-        // the user has a connection already
-        // console.log(`line 42 base.controller: The user has already a connection - override it`);
-    }
     // now supposedly all good
     // change the headers of the response
     res.setHeader('Content-Type', 'text/event-stream');
@@ -69,10 +67,17 @@ function saveConnection(req, res, next) {
     res.write('event: ' + 'testing\n');
     res.write('data: '+ jsonTest +  '\n\n');
     // save the response object
-    connectionsMap.set(req.session.userId, res);
-    //send(res);
-    console.log(`base.controller line 74: MAP size: ${connectionsMap.size}`)
-}
+    // add it to the mapping
+    // check if the user has already a connection...
+    if (userConnections.hasUserConnections(userId)) {
+        // the user has a connection already
+        // override the serversent event connection
+        userConnections.addServerSentEventConnectionToUser(userId, res);
+    } else {
+        // no connection, so create a completely new one
+        userConnections.addConnectionsToUser(userId, res, null);
+    }
+} // here ends SaveConnection
 
 function send(res) {
     res.write('data: ' + 'hello!\n\n');

@@ -1,6 +1,13 @@
 /**
- * Stores the connections of each user to their corresponding response object
- * @type {Map<String, Express.Response>}
+ * @typedef {Object} ConnectionObject
+ * @property {Express.Response} serverSentEvent
+ * @property {WebSocket} webSocketConnection
+ */
+
+
+/**
+ * Stores the connections of each user, using a map
+ * @type {Map<String, ConnectionObject>}
  */
 const connectionsMap= new Map();
 

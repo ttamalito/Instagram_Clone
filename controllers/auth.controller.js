@@ -1,7 +1,7 @@
 const checkloggedInUtils = require('../utils/checkLoggedIn');
 const userModel = require('../models/user.model');
 
-const connectionsMap = require('../utils/connectionsMap');
+const userConnections = require('../utils/userConnections');
 
 /**
  * Get route for /signup
@@ -141,11 +141,15 @@ function postLogout(req, res, next) {
         res.redirect('/');
         return;
     }
-
+    // the userId
+    const userId = req.session.userId;
     // delete the connection if the user had one
-    if (connectionsMap.has(req.session.userId)) {
+    if (userConnections.hasUserConnections(userId)) {
         // he has a connection
-        connectionsMap.delete(req.session.userId);
+        // TODO
+        // Close the websocket connection
+        userConnections.closeWebSocketConnectionForUser(userId)
+        userConnections.deleteConnectionsForUser(userId)
     }
 
     // else delete the data from the session
