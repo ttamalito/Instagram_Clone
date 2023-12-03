@@ -3,9 +3,8 @@ const http = require('http');
 
 const extractUserIdFromUrl = require('../utils/webSocketUtils/extractUserIdFromUrl.utils')
 
-
-// this will most definitely change
-const connections = require('../utils/WebSocketConnections.utils');
+// map that stores the webSocketConnections
+const userConnections = require('../utils/userConnections');
 
 /**
  *
@@ -21,7 +20,11 @@ function initiateWebSocketServer(httpServer) {
             // console.log('we received a connection');
             // console.log(wss.clients.size);
             console.log(req.url)
-            console.log(extractUserIdFromUrl(req.url));
+            // get the userId
+            const userId = extractUserIdFromUrl(req.url);
+
+
+
             // add an event listener to the TCP Socket
             req.socket.on('data', data => {console.log(
                 `We received some data!!! on this socket`
@@ -29,8 +32,20 @@ function initiateWebSocketServer(httpServer) {
             req.socket.on('ready', e => {
                 console.log(`SOcket is ready`)
             })
+
+
+            // add the message event listener to the socket
+            addMessageEventListenerToWebSocket(ws);
             ws.send('Hello from the server!')
-            connections.add(ws);
+            // add the webSocket to the connections map
+            if (userConnections.hasUserConnections(userId)) {
+                // he already has a connection
+                userConnections.addWebSocketConnectionForUser(userId, ws);
+            } else {
+                // the user has no active connections
+                // create a new one
+                userConnections.addConnectionsToUser(userId, null, ws);
+            }
             //console.log(ws)
         } // here ends the listener
     )// here ends the connection event
@@ -40,6 +55,20 @@ function initiateWebSocketServer(httpServer) {
     })
 } // here ends initiateWebSocketServer
 
+
+/**
+ * Adds the logic to handle incoming messages from a webSocket connection
+ * @param {ws.WebSocket} ws The WebSocket
+ */
+function addMessageEventListenerToWebSocket(ws) {
+    ws.on('message', (data, isBinary) => {
+        console.log(`We received a message`);
+        const messageString = data.toString()
+        // make it an object
+        const message = JSON.parse(messageString);
+        console.log(message)
+    })
+}
 
 
 module.exports = initiateWebSocketServer;
