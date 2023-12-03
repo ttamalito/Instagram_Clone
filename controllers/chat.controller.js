@@ -2,6 +2,9 @@ const {checkLoggedIn} = require("../utils/checkLoggedIn");
 const ObjectId = require('mongodb').ObjectId
 const chatModel = require('../models/chat.model')
 const userModel = require('../models/user.model');
+const refactoChatsUtils = require('../utils/chatUtils/refactorChatToSend');
+const {checkUserIsPartOfChat} = require("../utils/chatUtils/utilityFunctionsForChatController");
+const messageModel = require('../models/message.model')
 
 async function getChatsForUser(req, res, next) {
 
@@ -16,7 +19,13 @@ async function getChatsForUser(req, res, next) {
     // get the user id
     const userId = new ObjectId(req.session.userId);
 
-    const chats = await chatModel.getChatsForUser(userId);
+    let chats = await chatModel.getChatsForUser(userId);
+    // refactor every single chat
+    chats = await Promise.all(
+        chats.map(async chat => {
+            return await refactoChatsUtils.refactorSingleChatObjectToBeSent(chat, userId);
+        })
+    )
 
     res.json({chats: chats});
 
@@ -105,7 +114,31 @@ async function getStartNewChat(req, res, next) {
     res.render('chat/startNewChat', {following: following})
 }
 
+/**
+ * Controller to fetch all the messages from a chat
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
+async function getMessagesForChat(req, res, next) {
+    // login was checked beforehand
+    const chatId = new ObjectId(req.params.chatId);
 
+    const chat = await chatModel.getChat(chatId);
+    const userId = new ObjectId(req.session.userId)
+    // check if the user is part of the chat
+    if (!checkUserIsPartOfChat(chat.users, userId)) {
+        // user is not part of the chat
+        res.redirect('/');
+        return;
+    }
+
+    // now get all the messages
+    const messages = await messageModel.getMultipleMessages(chat.messages);
+
+    res.json({messages: messages});
+}
 
 
 
@@ -113,5 +146,6 @@ module.exports = {
     getChatsForUser: getChatsForUser,
     renderInbox: renderInbox,
     getStartNewChat: getStartNewChat,
-    postCreateNewChat: postCreateNewChat
+    postCreateNewChat: postCreateNewChat,
+    getMessagesForChat: getMessagesForChat
 }

@@ -26,8 +26,30 @@ async function saveNewMessage(params) {
     return result.insertedId;
 }
 
+/**
+ * Retrieves all the messages from the messages array
+ * @param {[ObjectId]} messages
+ * @return {Promise<[Message]>}
+ */
+async function getMultipleMessages(messages) {
+    const result = await db.getDatabase().collection(COLLECTION).find({
+        _id: {$in: messages}
+    })
+    return result.toArray();
+}
+
+
+/**
+ * @typedef {Object} Message
+ * @property {ObjectId} messageFrom
+ * @property {ObjectId} messageTo
+ * @property {String} date
+ * @property {String} content
+ * @property {[ObjectId]} likes
+ */
 
 
 module.exports = {
-    saveNewMessage: saveNewMessage
+    saveNewMessage: saveNewMessage,
+    getMultipleMessages: getMultipleMessages
 }

@@ -120,6 +120,34 @@ class UserConnections {
         return this.connectionsMap.get(userId)[this.serverSentEventConnectionString];
     }
 
+    /**
+     * Checks if the user has an active WebSocket Connection
+     * @param {String} userId
+     * @return {boolean} true if the user has an active connection
+     */
+    hasActiveWebSocketConnection(userId) {
+        if (!this.connectionsMap.has(userId))
+            return false
+        const webSocket = this.connectionsMap.get(userId)[this.webSocketConnectionString];
+        // check if it is null
+        if (!webSocket)
+            return false
+        return webSocket.readyState === 1;
+
+    } // here ends hasActiveWebSocketConnection
+
+    /**
+     * Retrieves the active WebSocket connection
+     * @param userId
+     * @throws {Error} If the user has no connection
+     * @returns {ws.WebSocket} the websocket connection
+     */
+    getWebSocketConnection(userId) {
+        if (!this.hasActiveWebSocketConnection(userId))
+            throw new Error(`Trying to access a non-active connection`)
+        return this.connectionsMap.get(userId)[this.webSocketConnectionString];
+    }
+
 } // here ends the class
 
 

@@ -189,6 +189,16 @@ class Notification {
         return true;
     } // here ends sendCommentNotification
 
+
+    /**
+     * Sends a notification to the receiver (messageTo)
+     * Saves the notification to the database
+     * @param {WebSocketMessage} webSocketMessage
+     */
+    sendMessageNotification(webSocketMessage) {
+        // TODO
+    }
+
     /**
      * Checks if the notification type of the notification is of the correct type
      * @param {typesOfNotificationEnum} notificationType
@@ -209,7 +219,8 @@ const typesOfNotificationEnum = {
     LIKE: Symbol('LIKE'),
     COMMENT: Symbol('COMMENT'),
     FOLLOW_REQUEST: Symbol('FOLLOW_REQUEST'),
-    NEW_FOLLOWER: Symbol('NEW_FOLLOWER')
+    NEW_FOLLOWER: Symbol('NEW_FOLLOWER'),
+    MESSAGE: Symbol('MESSAGE')
 }
 
 module.exports = {

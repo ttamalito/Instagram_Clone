@@ -37,7 +37,7 @@ async function saveNewChat(params) {
 /**
  * Retrieves a chat with the given id
  * @param {ObjectId} chatId
- * @returns {Promise<*>} The Chat object, if found
+ * @returns {Promise<Chat>} The Chat object, if found
  */
 async function getChat(chatId) {
     return await db.getDatabase().collection(COLLECTION).findOne({
@@ -88,6 +88,20 @@ async function getChatsForUser(userId) {
     })
     return result.toArray();
 }
+
+/**
+ * @typedef {Object} Chat
+ * @property {ObjectId} _id
+ * @property {[ObjectId]} users
+ * @property {{
+ *         isGroupChat: Boolean,
+ *         owner: ObjectId?,
+ *         groupPictureFileName: String
+ * }} groupChat
+ * @property {[ObjectId]} messages
+ * @property {[String]} media
+ */
+
 
 
 module.exports = {

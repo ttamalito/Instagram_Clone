@@ -4,6 +4,11 @@ const userId = document.querySelector('#web-socket-connection-userId').value;
 
 fetchActiveChats(userId).then().catch()
 
+/**
+ * Only fetches the active chats of the user, no messages. nothing else
+ * @param {String} userId
+ * @return {Promise<void>}
+ */
 async function fetchActiveChats(userId) {
     const response = await fetch(`http://localhost:3000/chat/retrieveChats/${userId}`, {
         method: 'GET',
@@ -17,16 +22,43 @@ async function fetchActiveChats(userId) {
     // else get the data
     const data = await response.json();
     const chats = data.chats;
-
+    /*
+    This is how each chat object looks like
+    {
+                 chatId: String
+                 userId: String, (The user that is visiting the page
+                partnerUsername: String,
+                partnerUserId: String,
+     */
     for (const chat of chats) {
         const p = document.createElement('p');
-        p.textContent = 'Chat id' + chat._id;
+        p.textContent = 'Chat id ' + chat.chatId;
         const users = document.createElement('p');
-        users.textContent = `Consisiting of ${chat.users[0]} and ${chat.users[1]}`;
+        users.textContent = `Chat with ${chat.partnerUsername}`;
         const div = document.createElement('div');
         div.append(p);
         div.append(users);
         const li = document.createElement('li');
+
+        // add an event listener, to fetch the messages of a given chat
+        li.addEventListener('click', async e => {
+            const response = await fetch(`http://localhost:3000/chat/getChatMessages/${chat.chatId}`, {
+                method: 'GET',
+                redirect: 'follow'
+            })
+            // check if redirected is needed
+            if (response.redirected)
+                window.location.href = response.url
+            const data = await response.json();
+            const messages = data.messages;
+            console.log(messages);
+            const messageFrom = document.querySelector('#messageFrom')
+            messageFrom.textContent = userId;
+            // message to
+            document.querySelector('#messageTo').textContent = chat.partnerUserId;
+            // chatId
+            document.querySelector('#chatId').textContent = chat.chatId;
+        })
         li.append(div);
         activeChatsList.append(li);
     } // end of for loop

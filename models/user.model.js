@@ -35,8 +35,8 @@ async function saveUser(email, password, username, bio, fullname) {
         likeNotifications: [],
         commentNotifications: [],
         followNotifications: [],
-        chats: []
-
+        chats: [],
+        chatNotifications: []
     })
 } // here ends the function
 

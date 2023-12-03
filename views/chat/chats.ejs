@@ -1,6 +1,7 @@
 <%- include('../includes/head', {pageTitle: 'Chats'}) %>
 <script src="/public/scripts/webSocketScripts/chatWebSocketScript.js" defer></script>
 <script src="/public/scripts/chatScripts/fetchChats.js" defer></script>
+<link rel="stylesheet" href="/public/styles/inboxStyle.css">
 </head>
 
 <body>
@@ -18,6 +19,23 @@
     <% } %>
 
     <a href="/chat/startNewChat/<%= locals.userId %>">Start a new Chat!</a>
-    <ul id="active-chats"></ul>
+    <div id="chats-container">
+        <div id="chats-overview">
+            <ul id="active-chats"></ul>
+        </div>
+        <div id="main-chat">
+            <div id="messageTo" style="visibility: hidden"></div>
+            <div id="chatId" style="visibility: hidden"></div>
+            <div id="messageFrom" style="visibility: hidden"></div>
+            <div id="conversation"></div>
+            <div id="message-input">
+                <form id="chat-form">
+                    <label for="message">Your message:</label>
+                    <input type="text" name="message" id="message" autocomplete="off">
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </main>
 <%- include('../includes/footer') %>

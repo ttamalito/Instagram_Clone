@@ -2,7 +2,7 @@ const WebSocketServer = require('ws').WebSocketServer;
 const http = require('http');
 
 const extractUserIdFromUrl = require('../utils/webSocketUtils/extractUserIdFromUrl.utils')
-
+const sendMessage = require('../utils/webSocketUtils/sendMessageToUser')
 // map that stores the webSocketConnections
 const userConnections = require('../utils/userConnections');
 
@@ -67,6 +67,8 @@ function addMessageEventListenerToWebSocket(ws) {
         // make it an object
         const message = JSON.parse(messageString);
         console.log(message)
+        // send the message
+        sendMessage(message);
     })
 }
 

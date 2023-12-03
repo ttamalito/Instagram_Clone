@@ -19,6 +19,34 @@ sendData.addEventListener('click', e => {
 })
 
 
+// get the form
+const chatForm = document.querySelector('#chat-form')
+
+// add the event listener
+chatForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const messageToBeSent = prepareMessage();
+    // reset the form
+    chatForm.reset();
+    // send the message through the websocket
+    ws.send(messageToBeSent);
+})
+
+
+/**
+ * Prepares the message to be sent.
+ * @return {String} The JSON object as a String
+ */
+function prepareMessage() {
+    const messageTo = document.querySelector('#messageTo').textContent;
+    const messageFrom = document.querySelector('#messageFrom').textContent;
+    const chatId = document.querySelector('#chatId').textContent;
+    const content = new FormData(chatForm).get('message');
+
+    // create the object
+    return createMessage(messageFrom, messageTo, chatId, content);
+}
+
 /**
  * Creates a message object to be sent as a JSON string
  * @param {String} messageFrom
