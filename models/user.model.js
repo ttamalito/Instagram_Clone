@@ -34,7 +34,8 @@ async function saveUser(email, password, username, bio, fullname) {
         requestToFollow: [],
         likeNotifications: [],
         commentNotifications: [],
-        followNotifications: []
+        followNotifications: [],
+        chats: []
 
     })
 } // here ends the function
@@ -564,6 +565,20 @@ async function saveFollowNotification(notification) {
 
 } // here ends the function
 
+/**
+ * Saves a chatId to the document of the user
+ * @param {ObjectId} userId
+ * @param {ObjectId} chatId
+ * @returns {Promise<boolean>} true if the chat was saved successfully
+ */
+async function saveChat(userId, chatId) {
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        _id: userId
+    }, { $push: {chats: chatId}})
+
+    return result.modifiedCount === 1;
+}
+
 module.exports = {
     saveUser: saveUser,
     checkUniqueEmail: checkUniqueEmail,
@@ -584,5 +599,6 @@ module.exports = {
     removeUserFromRequestToFollow: removeUserFromRequestToFollow,
     saveLikeNotification: saveLikeNotification,
     saveCommentNotification: saveCommentNotification,
-    saveFollowNotification: saveFollowNotification
+    saveFollowNotification: saveFollowNotification,
+    saveChat: saveChat
 }

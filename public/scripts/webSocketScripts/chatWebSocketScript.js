@@ -1,5 +1,5 @@
 // get the button
-const webSocketButton = document.querySelector('#web-socket-connection-username');
+const webSocketButton = document.querySelector('#web-socket-connection-userId');
 
 // get the list that has all the chats
 

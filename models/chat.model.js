@@ -77,9 +77,22 @@ async function addMessageToChat(messageData, chatId) {
     return result.modifiedCount === 1;
 } // here ends the function
 
+/**
+ * Retrieves all the chats to which a given user belongs
+ * @param {ObjectId} userId
+ * @returns {Promise<[Chat]>} The array of chats
+ */
+async function getChatsForUser(userId) {
+    const result = await db.getDatabase().collection(COLLECTION).find({
+        users: { $in: [userId]}
+    })
+    return result.toArray();
+}
+
 
 module.exports = {
     saveNewChat: saveNewChat,
     getChat: getChat,
-    addMessageToChat: addMessageToChat
+    addMessageToChat: addMessageToChat,
+    getChatsForUser: getChatsForUser
 }

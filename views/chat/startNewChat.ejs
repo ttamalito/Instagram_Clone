@@ -1,0 +1,26 @@
+<%- include('../includes/head', {pageTitle: 'Start new Chat'}) %>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <h1>
+        Start a new Chat
+    </h1>
+    <!-- Check if the user is logged in (double security)-->
+
+    <form action="/chat/createSingleChat" method="POST">
+        <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+        <!-- Select a person to chat -->
+        <label for="partner">Choose someone to chat</label>
+        <select name="partner" id="partner">
+            <% for (const user of following) { %>
+            <option value="<%= user.username %>"><%= user.username %></option>
+            <% } %>
+        </select>
+
+        <button type="submit">Create the chat</button>
+    </form>
+</main>
+<%- include('../includes/footer') %>
