@@ -24,6 +24,9 @@ async function getFetchNotifications(req, res, next) {
         // follow notifications
         notifications += user.followNotifications.length;
 
+        // chat notifications
+        notifications += user.chatNotifications.length;
+
     } // here ends the if
     // send the data
     res.json({amountNotifications: notifications})
@@ -109,10 +112,31 @@ async function getFetchFollowNotifications(req, res, next) {
     res.json({notifications: requestor.followNotifications});
 } // here ends the function
 
+async function getFetchChatNotifications(req, res, next) {
+    // logged in is checked before
+
+    const userId = new ObjectId(req.session.userId);
+
+    // get the user from the database
+    const user = await userModel.getUser(userId);
+
+    if (!user) {
+        // no user
+        next(new Error(`No user in the database even though is logged id`));
+    }
+
+    // all good
+    // get the chat notifications
+    const chatNotifications = user.chatNotifications;
+
+    res.json({notifications: chatNotifications})
+} // here ends getFetchChatNOtifications
+
 
 module.exports = {
     getFetchNotifications: getFetchNotifications,
     getFetchLikesNotifications: getFetchLikesNotifications,
     getFetchCommentNotifications: getFetchCommentNotifications,
-    getFetchFollowNotifications: getFetchFollowNotifications
+    getFetchFollowNotifications: getFetchFollowNotifications,
+    getFetchChatNotifications: getFetchChatNotifications
 };

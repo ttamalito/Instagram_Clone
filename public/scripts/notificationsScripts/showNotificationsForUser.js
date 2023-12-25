@@ -29,6 +29,9 @@ if (notificationsButton) {
             // fetch the follow notifications
             fetchFollowNotifications().then().catch()
 
+            // fetch the chat notifications
+            fetchChatNotifications().then().catch();
+
             // now show the div
             notificationsDiv.style.visibility = 'visible';
 
@@ -69,10 +72,7 @@ async function fetchAmountOfNotifications() {
 
 // get the data
     const data = await responseAmountNotifications.json();
-    const amountNotifications = data.amountNotifications;
-    console.log('We have this amount of notifications line 14 showNotificationsForUser');
-    console.log(amountNotifications)
-    return amountNotifications;
+    return data.amountNotifications;
 }
 
 
@@ -224,7 +224,6 @@ async function fetchLikesNotifications() {
 
     // get the data
     const data = await likesResponse.json();
-    console.log(data)
     // now we can populate the list
 
    // get the HTML list to show the likes
@@ -359,6 +358,29 @@ async function fetchFollowNotifications() {
         notificationsFollowList.append(li);
     } // here ends the for loop of notifications
 } // here ends the function
+
+/**
+ * Fetches all the chat notifications for a user and populates the list
+ * @return {Promise<void>}
+ */
+async function fetchChatNotifications() {
+
+    // fetch them
+    const response = await fetch(`http://localhost:3000/fetchChatNotifications`, {
+        method: 'GET',
+        redirect: 'follow'
+    })
+
+    // check if we need to redirect
+    if (response.redirected) {
+        window.location.href = response.url;
+    }
+
+    // get the data
+    const data = await response.json();
+    console.log(data)
+
+} // here ends fetchChatNotifications
 
 /**
  * Extracts the amount of notifications from the string 'Show X Notifications'

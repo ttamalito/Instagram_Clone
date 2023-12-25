@@ -49,6 +49,13 @@ sse.addEventListener('follow_request', e => {
     modifyNotificationsButton()
 })
 
+// add the event listener for a message notification
+sse.addEventListener('message', e => {
+    const data = JSON.parse(e.data);
+    console.log(data);
+    modifyNotificationsButton();
+})
+
 
 /**
  * Extracts the amount of notifications from the string 'Show X Notifications'

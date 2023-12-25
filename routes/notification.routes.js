@@ -1,7 +1,7 @@
 const express = require('express');
 
 const notificationController = require('../controllers/notification.controller');
-
+const redirectIfNotLoggedIn = require('../middlewares/redirectIfNotLoggedIn');
 
 const router = express.Router();
 
@@ -17,5 +17,7 @@ router.get('/fetchCommentNotifications', notificationController.getFetchCommentN
 // get route to fetch all follow notifications
 router.get('/fetchFollowNotifications', notificationController.getFetchFollowNotifications);
 
+// get route to fetch the chat notifications
+router.get('/fetchChatNotifications', redirectIfNotLoggedIn, notificationController.getFetchChatNotifications);
 
 module.exports = router;

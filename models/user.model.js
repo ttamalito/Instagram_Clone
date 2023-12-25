@@ -587,7 +587,14 @@ async function saveChat(userId, chatId) {
  */
 async function saveChatNotification(userId, data) {
 
-    return true;
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        // what to update
+        _id: userId
+    }, {
+        // data to update
+        $push: {chatNotifications: data}
+    })
+    return result.modifiedCount === 1;
 }
 
 /**
