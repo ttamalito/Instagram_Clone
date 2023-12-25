@@ -1,6 +1,7 @@
 const connectionsMap = require('./connectionsMap');
 const userModel = require('../models/user.model');
 const userConnections = require('../utils/userConnections');
+const {ObjectId} = require("mongodb");
 
 /**
  * Class that encapsulates the logic to send and store notifications
@@ -192,12 +193,44 @@ class Notification {
 
     /**
      * Sends a notification to the receiver (messageTo)
-     * Saves the notification to the database
+     * Saves the notification to the database (UserModel)
+     * Checks that it is the correct type of notification,
+     * If the user has no active server sent event connection then, it just save the notification to the database
      * @param {WebSocketMessage} webSocketMessage
      */
     sendMessageNotification(webSocketMessage) {
-        // TODO
-    }
+        // check that it is the correct type of notification
+        if (!this.#checkCorrectTypeOfNotification(typesOfNotificationEnum.MESSAGE)) {
+            // not the correct type
+            throw new Error(`Trying to save a message notification with incorrect type`);
+        }
+
+        const messageToObjectId = new ObjectId(webSocketMessage.messageTo);
+        const data = {
+            messageFrom: new ObjectId(webSocketMessage.messageFrom),
+            date: new Date().toISOString(),
+            content: webSocketMessage.content,
+            chatId: new ObjectId(webSocketMessage.chatId)
+        }
+            // save the data
+            userModel.saveChatNotification(messageToObjectId, data).then( res => {
+                if (res) {
+                    // the notification was saved successfully
+                    // check if the user has a SSE connection
+                    if (this.userHasConnection(webSocketMessage.messageTo)) {
+                        // get the connection
+                        const connection = userConnections.getSSEConnectionForUser(webSocketMessage.messageTo);
+                        connection.write('event: ' + 'message\n');
+                        connection.write('data: ' + JSON.stringify(data) + '\n\n')
+                    }
+
+                } else {
+                    // the notification could not be saved
+                    throw new Error(`Message Notification could not be saved!`);
+                }
+            }).catch(err => console.error(err));
+
+    } // here ends the method sendMessageNotification
 
     /**
      * Checks if the notification type of the notification is of the correct type

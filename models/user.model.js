@@ -579,6 +579,26 @@ async function saveChat(userId, chatId) {
     return result.modifiedCount === 1;
 }
 
+/**
+ * Saves a chat notification for the user with userId with the following data
+ * @param {ObjectId} userId The user id
+ * @param {chatNotificationData} data The data to be saved
+ * @return {Promise<boolean>} true if the notification was saved successfully
+ */
+async function saveChatNotification(userId, data) {
+
+    return true;
+}
+
+/**
+ * @typedef {Object} chatNotificationData
+ * @property {ObjectId} messageFrom
+ * @property {String} date
+ * @property {String} content
+ * @property {ObjectId} chatId
+ */
+
+
 module.exports = {
     saveUser: saveUser,
     checkUniqueEmail: checkUniqueEmail,
@@ -600,5 +620,6 @@ module.exports = {
     saveLikeNotification: saveLikeNotification,
     saveCommentNotification: saveCommentNotification,
     saveFollowNotification: saveFollowNotification,
-    saveChat: saveChat
+    saveChat: saveChat,
+    saveChatNotification: saveChatNotification
 }

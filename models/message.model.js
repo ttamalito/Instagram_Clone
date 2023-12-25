@@ -4,7 +4,8 @@ const ObjectId = require('mongodb').ObjectId
 const COLLECTION = 'messages';
 
 /**
- * Saves a new message to the database asynchrounosly
+ * Saves a new message to the database asynchrounosly\
+ * This method should only e called from the chatModel.
  * @param {{
  *     messageFrom: ObjectId,
  *     messageTo: ObjectId,

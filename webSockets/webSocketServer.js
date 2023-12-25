@@ -7,7 +7,8 @@ const sendMessage = require('../utils/webSocketUtils/sendMessageToUser')
 const userConnections = require('../utils/userConnections');
 
 /**
- *
+ * Initiates the websocket server and
+ * adds an event to the websocket server when a connection is established and when the server is already listening
  * @param {http.Server} httpServer
  */
 function initiateWebSocketServer(httpServer) {
@@ -17,9 +18,8 @@ function initiateWebSocketServer(httpServer) {
 
     // add some events
    wss.on('connection', (ws, req) => {
-            // console.log('we received a connection');
-            // console.log(wss.clients.size);
             console.log(req.url)
+
             // get the userId
             const userId = extractUserIdFromUrl(req.url);
 
@@ -46,13 +46,14 @@ function initiateWebSocketServer(httpServer) {
                 // create a new one
                 userConnections.addConnectionsToUser(userId, null, ws);
             }
-            //console.log(ws)
-        } // here ends the listener
+        } // here ends the listener for establshing a new connection to the websocket server
     )// here ends the connection event
 
     wss.on('listening', () => {
         console.log(`WebSocket server up and running on Port ${wss.address().port}`)
-    })
+    }) // here ends the event on listening
+
+
 } // here ends initiateWebSocketServer
 
 
@@ -67,7 +68,7 @@ function addMessageEventListenerToWebSocket(ws) {
         // make it an object
         const message = JSON.parse(messageString);
         console.log(message)
-        // send the message
+        // send the message with the utils
         sendMessage(message);
     })
 }

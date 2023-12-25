@@ -11,7 +11,6 @@ const checkLoginMiddleware = require('./middlewares/check-login');
 //const saveConnectionMiddleware = require('./middlewares/save-connection-server-sent-event');
 
 // import the webSocket
-const runWebSocket = require('./webSockets/mainWebSocket');
 const initiateWebSocketServer = require('./webSockets/webSocketServer');
 
 const PORT = 'mongodb://localhost:27017';

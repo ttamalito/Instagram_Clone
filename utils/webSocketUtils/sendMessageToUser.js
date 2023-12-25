@@ -2,6 +2,7 @@ const messageModel = require('../../models/message.model');
 const userConnections = require('../userConnections');
 const chatModel = require('../../models/chat.model');
 const {Notification, typesOfNotificationEnum} = require('../Notification');
+const {ObjectId} = require("mongodb");
 
 /**
  * Saves a message to the database and sends it to the user
@@ -12,25 +13,47 @@ const {Notification, typesOfNotificationEnum} = require('../Notification');
  */
 function sendMessage(message) {
 
-    // check if the other user has an active WebSocketConnection
-    if (!userConnections.hasActiveWebSocketConnection(message.messageTo)) {
-        // no active webSocket connection
-        // send a server sent event notification
-        // TODO
-        //const notification = new Notification(typesOfNotificationEnum.MESSAGE, message.messageFrom, message.messageTo);
-    } else {
-        // user has connection
-        // send the message
-        const webSocket = userConnections.getWebSocketConnection(message.messageTo);
-        console.log('We are going to send a message-- line 25 saendMessageTouser')
-        webSocket.send(message.content);
+    // save the message to the database
+    saveMessageToDataBase(message).then(res => {
+        // it was saved successfully
+        // send the message if the user has an active websocket connection
+        if (!userConnections.hasActiveWebSocketConnection(message.messageTo)) {
+            // no active webSocket connection
+            // send a server sent event notification
+            const notification = new Notification(typesOfNotificationEnum.MESSAGE, message.messageFrom, message.messageTo);
+            notification.sendMessageNotification(message);
+        } else {
+            // user has connection
+            // send the message
+            const webSocket = userConnections.getWebSocketConnection(message.messageTo);
+            webSocket.send(message.content);
+        } // here ends the else
+    }).catch(error => {throw new Error(`Could not save message to the database`)})
+
+} // here ends saveMessage
+
+/**
+ * Saves a message to the database asynchrousnously
+ * @param {WebSocketMessage} message The message object
+ * @return {Promise<Boolean>} true if the message was saved successfully
+ */
+async function saveMessageToDataBase(message) {
+    const messageFromObjectId = new ObjectId(message.messageFrom);
+    const messageToObjectId = new ObjectId(message.messageTo);
+    const chatIdObjectId = new ObjectId(message.chatId);
+    const params = {
+        messageFrom: messageFromObjectId,
+        messageTo: messageToObjectId,
+        date: new Date().toISOString(),
+        content: message.content
     }
-}
+    return await chatModel.addMessageToChat(params, chatIdObjectId);
+} // here ends saeMessageToDataBase
 
 /**
  * @typedef {Object} WebSocketMessage
- * @property {String} messageFrom
- * @property {String} messageTo
+ * @property {String} messageFrom id of the user
+ * @property {String} messageTo id of the user
  * @property {String} chatId
  * @property {String} content
  */
