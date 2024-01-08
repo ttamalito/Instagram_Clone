@@ -599,6 +599,7 @@ async function saveChatNotification(userId, data) {
 
 /**
  * @typedef {Object} chatNotificationData
+ * @property {String} messageFromUsername
  * @property {ObjectId} messageFrom
  * @property {String} date
  * @property {String} content

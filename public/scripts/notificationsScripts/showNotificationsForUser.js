@@ -378,7 +378,32 @@ async function fetchChatNotifications() {
 
     // get the data
     const data = await response.json();
-    console.log(data)
+
+    // get the list
+    const chatList = document.querySelector('#notifications-chats-list');
+
+    // empty the list
+    removeAllChildNodes(chatList);
+
+    // populate the list
+    for (const notification of data.notifications) {
+        const container = document.createElement('div');
+        console.log(notification);
+        // anchor for user
+        const anchorUsername = document.createElement('a');
+        anchorUsername.textContent = 'username'
+
+        const p = document.createElement('p');
+        p.textContent = 'sent you a message'
+
+        container.append(anchorUsername);
+        container.append(p)
+
+        const li = document.createElement('li');
+        li.append(container)
+        // add the li to the list
+        chatList.append(li);
+    } // here ends the loop
 
 } // here ends fetchChatNotifications
 

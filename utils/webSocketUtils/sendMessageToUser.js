@@ -21,12 +21,20 @@ function sendMessage(message) {
             // no active webSocket connection
             // send a server sent event notification
             const notification = new Notification(typesOfNotificationEnum.MESSAGE, message.messageFrom, message.messageTo);
-            notification.sendMessageNotification(message);
+            notification.sendMessageNotification(message).then().catch(err => console.error(err));
         } else {
             // user has connection
             // send the message
             const webSocket = userConnections.getWebSocketConnection(message.messageTo);
-            webSocket.send(message.content);
+            // make it a JSON object
+            const jsonStringMessage = JSON.stringify(message);
+            webSocket.send(jsonStringMessage); // send the complete WebSocketMessage
+            /*
+            messageFrom: String – id of the user
+            messageTo: String – id of the user
+            chatId: String – Id of the chat
+            content: String – content of the message
+             */
         } // here ends the else
     }).catch(error => {throw new Error(`Could not save message to the database`)})
 

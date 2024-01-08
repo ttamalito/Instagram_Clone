@@ -198,7 +198,7 @@ class Notification {
      * If the user has no active server sent event connection then, it just save the notification to the database
      * @param {WebSocketMessage} webSocketMessage
      */
-    sendMessageNotification(webSocketMessage) {
+    async sendMessageNotification(webSocketMessage) {
         // check that it is the correct type of notification
         if (!this.#checkCorrectTypeOfNotification(typesOfNotificationEnum.MESSAGE)) {
             // not the correct type
@@ -206,12 +206,18 @@ class Notification {
         }
 
         const messageToObjectId = new ObjectId(webSocketMessage.messageTo);
+
+        const user = await userModel.getUser(new ObjectId(webSocketMessage.messageFrom));
+        const messageFromUsername = user.username;
+
         const data = {
+            messageFromUsername: messageFromUsername,
             messageFrom: new ObjectId(webSocketMessage.messageFrom),
             date: new Date().toISOString(),
             content: webSocketMessage.content,
             chatId: new ObjectId(webSocketMessage.chatId)
         }
+
             // save the data
             userModel.saveChatNotification(messageToObjectId, data).then( res => {
                 if (res) {

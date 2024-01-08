@@ -11,11 +11,9 @@
     <h1>
         Your messages
     </h1>
-    <button id="send-test-message">Send something to the server</button>
     <!-- Check if the user is logged in (double security)-->
     <% if (locals.loggedIn) { %>
         <button id="web-socket-connection-userId" value="<%= locals.userId %>" style="visibility: hidden"></button>
-
     <% } %>
 
     <a href="/chat/startNewChat/<%= locals.userId %>">Start a new Chat!</a>
@@ -24,10 +22,17 @@
             <ul id="active-chats"></ul>
         </div>
         <div id="main-chat">
+            <!-- Id of the user that is taking part in the chat -->
             <div id="messageTo" style="visibility: hidden"></div>
+            <!-- username of the user that is taking part in the chat -->
+            <div id="chat-with" style="visibility: hidden"></div>
+            <!-- Id of the chat -->
             <div id="chatId" style="visibility: hidden"></div>
+            <!-- Id of the user that is logged in i.e. the user looking at the screen -->
             <div id="messageFrom" style="visibility: hidden"></div>
-            <div id="conversation"></div>
+            <div id="conversation">
+                <ol id="conversation-messages"></ol>
+            </div>
             <div id="message-input">
                 <form id="chat-form">
                     <label for="message">Your message:</label>

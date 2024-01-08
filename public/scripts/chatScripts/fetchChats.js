@@ -38,6 +38,9 @@ async function fetchActiveChats(userId) {
         const div = document.createElement('div');
         div.append(p);
         div.append(users);
+        // Space to show how many unread messages you have in the following chat
+        const pendingMessages = document.createElement('span');
+        pendingMessages.id = `pendingMessages-${chat.chatId}`;
         const li = document.createElement('li');
 
         // add an event listener, to fetch the messages of a given chat
@@ -56,6 +59,9 @@ async function fetchActiveChats(userId) {
             messageFrom.textContent = userId;
             // message to
             document.querySelector('#messageTo').textContent = chat.partnerUserId;
+            // chat with
+            document.querySelector('#chat-with').textContent = `Chat with: ${chat.partnerUsername}`;
+            document.querySelector('#chat-with').style.visibility = 'visible';
             // chatId
             document.querySelector('#chatId').textContent = chat.chatId;
         })
