@@ -114,13 +114,16 @@ content: String – content of the message
             pendingMessagesElement.textContent = `${amountOfMessages}`
         }
     } // here ends if the received message is not from the main chat
+    else {
+        // the message is from the main chat
+        // add it to the list
+        const listOfMessages = document.querySelector('#conversation-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = message.content;
+        const li = document.createElement('li');
+        li.append(messageDiv);
+        listOfMessages.append(li);
+    }
 
-    // the message is from the main chat
-    // add it to the list
-    const listOfMessages = document.querySelector('#conversation-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.textContent = message.content;
-    const li = document.createElement('li');
-    li.append(messageDiv);
-    listOfMessages.append(li);
+
 } // here ends receiveMessage
