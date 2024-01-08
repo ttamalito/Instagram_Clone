@@ -54,9 +54,7 @@ async function fetchActiveChats(userId) {
             // check if redirected is needed
             if (response.redirected)
                 window.location.href = response.url
-            const data = await response.json();
-            const messages = data.messages;
-            console.log(messages);
+
             const messageFrom = document.querySelector('#messageFrom')
             messageFrom.textContent = userId;
             // message to
@@ -71,8 +69,60 @@ async function fetchActiveChats(userId) {
 
             // make the form to input a message visible
             document.querySelector('#message-input').style.visibility ='visible';
+            // logic to display the messages
+            const data = await response.json();
+            const messages = data.messages;
+            // empty the list
+            const conversationMessages = document.querySelector('#conversation-messages');
+            removeAllChildNodes(conversationMessages);
+            // display the messages
+            displayFetchedMessages(messages);
         })
         li.append(div);
         activeChatsList.append(li);
     } // end of for loop
 } // end of fetchChats function
+
+/**
+ * Function to display all the fetched messages according to who sent it and who received it.
+ * @param {[Object]} messages
+ */
+function displayFetchedMessages(messages) {
+    // messages is an array of objects
+    // where each object is:
+    /*
+/**
+ * @typedef {Object} Message
+ * @property {ObjectId} messageFrom
+ * @property {ObjectId} messageTo
+ * @property {String} date
+ * @property {String} content
+ * @property {[ObjectId]} likes
+     */
+    for (const message of messages) {
+        console.log(message.messageFrom)
+        console.log(document.querySelector('#messageTo').textContent)
+        // check if the messageFrom property matches the messageTo HTML tag
+        if (message.messageFrom === document.querySelector('#messageTo').textContent) {
+            // display the message as received
+            const listOfMessages = document.querySelector('#conversation-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message.content;
+            const li = document.createElement('li');
+            li.className = 'received-message';
+            li.append(messageDiv);
+            listOfMessages.append(li);
+        } else {
+            // display it as sent
+            const listOfMessages = document.querySelector('#conversation-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message.content;
+            const li = document.createElement('li');
+            li.className = 'sent-message';
+            li.append(messageDiv);
+            listOfMessages.append(li);
+        }
+    } // here ends the for loop
+
+
+} // here ends displayFetchedMessages
