@@ -51,6 +51,7 @@ function prepareMessage() {
     const messageDiv = document.createElement('div');
     messageDiv.textContent = content;
     const li = document.createElement('li');
+    li.className = 'sent-message';
     li.append(messageDiv);
     listOfMessages.append(li);
 
@@ -121,6 +122,7 @@ content: String – content of the message
         const messageDiv = document.createElement('div');
         messageDiv.textContent = message.content;
         const li = document.createElement('li');
+        li.className = 'received-message';
         li.append(messageDiv);
         listOfMessages.append(li);
     }

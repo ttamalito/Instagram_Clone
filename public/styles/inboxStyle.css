@@ -69,3 +69,16 @@ body {
     margin: 0;
     padding: 0;
 }
+
+.sent-message {
+    display: flex;
+    flex-direction: row;
+    justify-items: flex-end;
+    align-items: flex-end;
+    margin-left: 75%;
+}
+
+.received-message {
+    display: flex;
+    flex-direction: row;
+}
