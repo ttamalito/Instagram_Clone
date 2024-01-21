@@ -53,17 +53,32 @@ async function postCreatePost(req, res, next) {
     // get the data
     const userId = req.session.userId; // user is loggedIn so there is a userId for sure
     const caption = req.body.caption;
-    // access the picture in req.file
+    // access the file (image/video) in req.file
     const fileName = req.file.filename;
-
-    // save the data (assume it is correct)
-    let postId;
-    try {
-       postId = await postModel.savePost(userId, fileName, caption);
-    } catch (error) {
-        next(error)
-        return;
+    const mimetype = req.file.mimetype;
+    console.log(mimetype);
+    const splittedString = mimetype.split("");
+    let image = '';
+    for (let i = 0; i < 5; i++) {
+        image += splittedString[i];
     }
+
+
+    let postId;
+    // check if it is an image
+    if (image === 'image') {
+        try {
+            postId = await postModel.savePost(userId, fileName, caption, 'image');
+        } catch (error) {
+            next(error)
+            return;
+        }
+    } else {
+        // the file was a video
+        postId = await postModel.savePost(userId, fileName, caption, 'video')
+        console.log('You uploaded a video');
+    }
+
 
     // save the postId to the user's profile
     const userIdAsObjectId = new ObjectId(userId);

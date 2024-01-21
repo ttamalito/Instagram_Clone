@@ -11,8 +11,8 @@
     <form action="/createPost?_csrf=<%= locals.csrfToken %>" method="POST" enctype="multipart/form-data"> <!-- Form is sent to currentUrl/signup via a POST method-->
         <!--<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>"> -->
         <div>
-            <label for="image">Image</label>
-            <input type="file" id="image" name="postPicture" required>
+            <label for="image/video">Image or video</label>
+            <input type="file" id="image/video" name="fileToUpload" required>
         </div>
         <div>
             <label for="caption">Caption</label>

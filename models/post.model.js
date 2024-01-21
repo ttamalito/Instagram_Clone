@@ -6,20 +6,22 @@ const COLLECTION = 'posts';
 /**
  * Saves a Post to the 'posts' collection
  * @param {String} userId Owner of the post
- * @param imageFileName fileName saved in the server
+ * @param {String} fileName fileName saved in the server
  * @param caption Caption of the user
+ * @param {String} postType The type of post
  * @returns {Promise<ObjectId>} When the promise is fulfilled, it returns an ObjectId with the _id
  */
-async function savePost(userId, imageFileName, caption) {
+async function savePost(userId, fileName, caption, postType) {
     const date = new Date().toISOString();
     const saveResult = await db.getDatabase().collection(COLLECTION).insertOne({
         userId: new ObjectId(userId),
-        imageFileName: imageFileName,
-        imagePath:`posts/${imageFileName}`,
+        fileName: fileName,
+        filePath:`posts/${fileName}`,
         caption: caption,
         likes: [],
         comments: [],
-        dateCreated: date
+        dateCreated: date,
+        postType: postType
     })
     // Type of this is an ObjectId
     return saveResult.insertedId;
@@ -70,7 +72,7 @@ async function likePost(postId, userId) {
 
 
 
-    return result.acknowledged;
+    return result.modifiedCount === 1;
 }
 
 

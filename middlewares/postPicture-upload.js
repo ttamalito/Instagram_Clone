@@ -13,6 +13,6 @@ const upload = multer({
     storage: storage
 });
 
-const postPictureMiddleware = upload.single('postPicture');
+const postPictureMiddleware = upload.single('fileToUpload');
 
 module.exports = postPictureMiddleware;
