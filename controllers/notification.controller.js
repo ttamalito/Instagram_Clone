@@ -156,6 +156,26 @@ async function deleteChatNotification(req, res, next) {
     }
 } // here ends deleteChatNotification
 
+/**
+ * Deletes a follow notification from the database for a given user
+ * @param {Express.Request} req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
+async function deleteFollowNotification(req, res, next) {
+    // get the userId
+    const userId = new ObjectId(req.session.userId);
+    // delete the notification
+    const result = await userModel.deleteFollowNotification(userId, req.body);
+    if (result) {
+        res.json({result: result})
+        return;
+    }
+    console.log('the notification was not deleded')
+    res.json({result: false})
+} // here ends deleteFollowNotification
+
 
 module.exports = {
     getFetchNotifications: getFetchNotifications,
@@ -163,5 +183,6 @@ module.exports = {
     getFetchCommentNotifications: getFetchCommentNotifications,
     getFetchFollowNotifications: getFetchFollowNotifications,
     getFetchChatNotifications: getFetchChatNotifications,
-    deleteChatNotification: deleteChatNotification
+    deleteChatNotification: deleteChatNotification,
+    deleteFollowNotification: deleteFollowNotification
 };

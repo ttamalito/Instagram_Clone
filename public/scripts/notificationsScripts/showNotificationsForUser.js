@@ -357,6 +357,13 @@ async function fetchFollowNotifications() {
         // add the anchor user to the container
         followContainer.append(anchorUser);
 
+        // the profile picture
+        const profilePicture = document.createElement('img');
+        profilePicture.src = `/static/images/${notification.imagePath}`
+        profilePicture.style.height = '50px';
+        profilePicture.style.width = '50px';
+        followContainer.append(profilePicture);
+
         // simple paragraph
         const p = document.createElement('p');
         p.textContent = `started following you`;
@@ -368,6 +375,10 @@ async function fetchFollowNotifications() {
 
         // add the container to a li and to the ul
         const li = document.createElement('li');
+        // create the button to remove the notification
+        const removeNotificationButton = createDeleteNotificationButton(notification,
+            'follow', notificationsFollowList, li);
+        followContainer.append(removeNotificationButton);
         li.append(followContainer);
         notificationsFollowList.append(li);
     } // here ends the for loop of notifications

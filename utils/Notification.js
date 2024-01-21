@@ -117,11 +117,6 @@ class Notification {
             throw new Error(`Not correct type of notification-- line 112 utils/Notification`);
         }
 
-        // check that user has a connection
-        if (!this.userHasConnection(receiverId)) {
-            // no connection
-            throw new Error(`No connection for user -- line 118 utils/Notification`);
-        }
 
         const data = {
             receiverUsername: this.receiver,
@@ -134,11 +129,15 @@ class Notification {
         userModel.saveFollowNotification(data).then( res => {
             if (res) {
                 // it was saved successfully
-                // send the notification
-                const connection = userConnections.getSSEConnectionForUser(receiverId);
-                connection.write('event: ' + 'new_follower\n');
-                connection.write('data: ' + 'You have a new follower' + `${this.sender}\n\n`);
+                // check that user has a connection
+                if (this.userHasConnection(receiverId)) {
+                    // send the notification
+                    const connection = userConnections.getSSEConnectionForUser(receiverId);
+                    connection.write('event: ' + 'new_follower\n');
+                    connection.write('data: ' + 'You have a new follower' + `${this.sender}\n\n`);
+                }
                 return true;
+
             } else {
                 return false;
             }

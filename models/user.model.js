@@ -566,6 +566,19 @@ async function saveFollowNotification(notification) {
 } // here ends the function
 
 /**
+ * Removes a follow notification from the given user
+ * @param {ObjectId} userId
+ * @param {followNotificationData} data
+ * @return {Promise<boolean>}
+ */
+async function deleteFollowNotification(userId, data) {
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({_id: userId}, {
+        $pull: {followNotifications: {date: data.date}}
+    });
+    return result.modifiedCount === 1;
+} // here ends the method
+
+/**
  * Saves a chatId to the document of the user
  * @param {ObjectId} userId
  * @param {ObjectId} chatId
@@ -631,6 +644,14 @@ async function deleteChatNotification(userId, chatData) {
  * @property {ObjectId} chatId
  */
 
+/**
+ * @typedef {Object} followNotificationData
+ * @property {String} receiverUsername
+ * @property {String} senderUsername
+ * @property {String} date
+ * @property {String}         imagePath
+ */
+
 
 module.exports = {
     saveUser: saveUser,
@@ -655,5 +676,6 @@ module.exports = {
     saveFollowNotification: saveFollowNotification,
     saveChat: saveChat,
     saveChatNotification: saveChatNotification,
-    deleteChatNotification: deleteChatNotification
+    deleteChatNotification: deleteChatNotification,
+    deleteFollowNotification: deleteFollowNotification
 }

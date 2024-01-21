@@ -138,10 +138,10 @@ async function postFollow(req, res,  next) {
             // the operation was resolved successfully
             const followNotification = new Notification(typesOfNotificationEnum.NEW_FOLLOWER,
                 sender.username, requestee.username);
-            // make sure that the receiver has a connection
-            if (followNotification.userHasConnection(requestee._id.toString())) {
-                const notificationResult = followNotification.sendReceivedFollowNotification(requestee._id.toString());
-            }
+                // send the notification
+                const notificationResult = followNotification.sendReceivedFollowNotification(requestee._id.toString(),
+                    `profilePictures/${sender.profilePicture}`);
+
 
         } // if followResult
         // all good
