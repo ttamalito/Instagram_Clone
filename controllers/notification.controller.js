@@ -132,11 +132,36 @@ async function getFetchChatNotifications(req, res, next) {
     res.json({notifications: chatNotifications})
 } // here ends getFetchChatNOtifications
 
+async function deleteChatNotification(req, res, next) {
+    // if has been cheked already if the user is authenticated
+    // create a chatNotification data
+    const chatData = {
+        messageFromUsername: req.body.messageFromUsername,
+        messageFrom: new ObjectId(req.body.messageFrom),
+        date: req.body.date,
+        content: req.body.content,
+        chatId: new ObjectId(req.body.chatId)
+    }
+    // get the userId
+    const userId = new ObjectId(req.session.userId);
+    // delete the notification
+    const result = await userModel.deleteChatNotification(userId, chatData);
+    if (result) {
+        // notification was deleted successfully
+        res.json({result: true});
+        return;
+    } else {
+        res.json({result: false});
+        return;
+    }
+} // here ends deleteChatNotification
+
 
 module.exports = {
     getFetchNotifications: getFetchNotifications,
     getFetchLikesNotifications: getFetchLikesNotifications,
     getFetchCommentNotifications: getFetchCommentNotifications,
     getFetchFollowNotifications: getFetchFollowNotifications,
-    getFetchChatNotifications: getFetchChatNotifications
+    getFetchChatNotifications: getFetchChatNotifications,
+    deleteChatNotification: deleteChatNotification
 };

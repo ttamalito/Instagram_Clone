@@ -198,6 +198,10 @@ async function fetchFollowRequestNotifications() {
         container.append(buttonAccept);
         container.append(buttonReject);
 
+        // set the date of the notification
+        const date = setNotificationDate(notification.date);
+        container.append(date);
+
         // now populate the list
         li.append(container);
         requestToFollowlist.append(li);
@@ -251,6 +255,9 @@ async function fetchLikesNotifications() {
         image.style.height = '50px'
         likeContainer.append(image)
 
+        // set the date
+        const date = setNotificationDate(notification.date);
+        likeContainer.append(date);
 
         // add the container to a li and to the ul
         const li = document.createElement('li');
@@ -263,7 +270,7 @@ async function fetchLikesNotifications() {
 } // here ends the function
 
 /**
- * Fetches all comment notifications
+ * Fetches all comment notifications and populates the HTML list
  * @returns {Promise<void>}
  */
 async function fetchCommentsNotifications() {
@@ -305,6 +312,9 @@ async function fetchCommentsNotifications() {
         image.style.width = '20px'
         image.style.height = '20px'
         commentContainer.append(image)
+
+        const date = setNotificationDate(notification.date);
+        commentContainer.append(date);
 
 
         // add the container to a li and to the ul
@@ -352,6 +362,10 @@ async function fetchFollowNotifications() {
         p.textContent = `started following you`;
         followContainer.append(p);
 
+        // set the date
+        const date = setNotificationDate(notification.date);
+        followContainer.append(date);
+
         // add the container to a li and to the ul
         const li = document.createElement('li');
         li.append(followContainer);
@@ -388,18 +402,30 @@ async function fetchChatNotifications() {
     // populate the list
     for (const notification of data.notifications) {
         const container = document.createElement('div');
-        console.log(notification);
+        // console.log(typeof notification.date);
         // anchor for user
         const anchorUsername = document.createElement('a');
-        anchorUsername.textContent = 'username'
+        anchorUsername.textContent = notification.messageFromUsername;
 
         const p = document.createElement('p');
         p.textContent = 'sent you a message'
 
+        // set the date of the notification
+        const date = setNotificationDate(notification.date);
+
+
+
         container.append(anchorUsername);
         container.append(p)
-
+        container.append(date)
+        // create the list item to hold the container
         const li = document.createElement('li');
+
+        // create the button to remove the notification
+        const deleteNotificationButton = createDeleteNotificationButton(notification, 'chat', chatList, li);
+
+        // append the delete button
+        container.append(deleteNotificationButton)
         li.append(container)
         // add the li to the list
         chatList.append(li);
@@ -427,4 +453,78 @@ function extractAndIncrementAmountOfNotifications(amount, toAdd = 0) {
 function extractAmountOfNotifications(textContent) {
     const separatedArray = textContent.split(' ');
     return parseInt(separatedArray[1]);
+}
+
+/**
+ * Creates a 'p' element and sets it to the date
+ * @param {String} date The date of the notification
+ * @return {HTMLParagraphElement}
+ */
+function setNotificationDate(date) {
+    const p = document.createElement('p');
+    p.textContent = `at ${date}`;
+    return p;
+}
+
+/**
+ * Function that contains the logic to send the DELETE request, to remove a notification
+ * @param notification
+ * @param {String} notificationType
+ * @param {HTMLUListElement} list
+ * @param {HTMLLIElement} itemToBeRemoved
+ * @return {Promise<void>}
+ */
+async function removeNotification(notification, notificationType, list, itemToBeRemoved) {
+
+    const csrfToken = document.querySelector('#notification-csrf').value;
+    const bodyData = new URLSearchParams(notification);
+    const response = await fetch(`http://localhost:3000/removeNotification/${notificationType}?_csrf=${csrfToken}`, {
+        method: "DELETE",
+        body: bodyData,
+        redirect: "follow"
+    })
+
+    // check if redirected
+    if (response.redirected)
+        window.location.href = response.url
+    // get the result
+    const data = await response.json();
+    if (data.result) {
+        // the notification was deleted successfully
+        // remove the item from the list
+        list.removeChild(itemToBeRemoved);
+        // change the text content of the show-notifications-button
+            if (extractAmountOfNotifications(notificationsButton.textContent) === 1) {
+                // there was only one notification, and it was removed, so close everything
+                notificationsButton.style.visibility = 'hidden';
+                notificationsDiv.style.visibility = 'hidden';
+                notificationsButton.textContent = '';
+            } else {
+                // decrease the amount of notifications by one
+                notificationsButton.textContent = extractAndIncrementAmountOfNotifications(
+                    notificationsButton.textContent, -1);
+            }
+
+    } // here ends if data.result
+
+} // here ends removeNotification
+
+
+/**+
+ * Create a button with the corresponding event listener to remove the notification
+ * @param notification
+ * @param {String} notificationType
+ * @param {HTMLUListElement} list
+ * @param {HTMLLIElement} itemToBeRemoved
+ * @return {HTMLButtonElement} The button
+ */
+function createDeleteNotificationButton(notification, notificationType, list, itemToBeRemoved) {
+    // create the button
+    const deleteNotificationButton = document.createElement('button');
+    deleteNotificationButton.textContent = 'Remove notification';
+    deleteNotificationButton.addEventListener('click', async e => {
+        await removeNotification(notification, notificationType, list, itemToBeRemoved);
+    } ) // here ends the eventlistener
+
+    return deleteNotificationButton
 }

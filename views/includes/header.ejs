@@ -20,7 +20,7 @@
         <!-- IF the user is logged In, show the notifications option -->
             <button id="show-notifications-button" value="<%= locals.userId %>"
             style="visibility: hidden"></button>
-
+            <input type="hidden" id="notification-csrf" value="<%= locals.csrfToken %>">
         <div id="notifications-div" style="visibility: hidden">
             <ul id="requestToFollow-list"></ul>
             <ul id="follow-list"></ul>

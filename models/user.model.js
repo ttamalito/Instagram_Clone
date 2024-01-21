@@ -598,6 +598,31 @@ async function saveChatNotification(userId, data) {
 }
 
 /**
+ * Deletes a chat notification that matches the exact data (chatData)
+ * @param {ObjectId} userId
+ * @param {chatNotificationData} chatData
+ * @return {Promise<boolean>} true if the operation was completed successfully
+ */
+async function deleteChatNotification(userId, chatData) {
+
+    // get the user
+    const user = await db.getDatabase().collection(COLLECTION).findOne({_id: userId});
+    if (!user) {
+        // there is no user
+        return false;
+    }
+
+    // the user exists
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({
+        // which document to update
+        _id: userId
+    }, {
+        $pull: {chatNotifications: {date: chatData.date} }
+    });
+    return result.modifiedCount === 1;
+}
+
+/**
  * @typedef {Object} chatNotificationData
  * @property {String} messageFromUsername
  * @property {ObjectId} messageFrom
@@ -629,5 +654,6 @@ module.exports = {
     saveCommentNotification: saveCommentNotification,
     saveFollowNotification: saveFollowNotification,
     saveChat: saveChat,
-    saveChatNotification: saveChatNotification
+    saveChatNotification: saveChatNotification,
+    deleteChatNotification: deleteChatNotification
 }
