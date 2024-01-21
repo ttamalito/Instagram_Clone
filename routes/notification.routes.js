@@ -29,6 +29,9 @@ router.delete('/removeNotification/follow', redirectIfNotLoggedIn, notificationC
 // delete route to remove a comment notification
 router.delete('/removeNotification/comment', redirectIfNotLoggedIn, notificationController.deleteCommentNotification);
 
+// delete route to remove a like notification
+router.delete('/removeNotification/like', redirectIfNotLoggedIn, notificationController.deleteLikeNotification);
+
 
 
 module.exports = router;

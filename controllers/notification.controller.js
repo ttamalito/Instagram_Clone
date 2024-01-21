@@ -176,6 +176,12 @@ async function deleteFollowNotification(req, res, next) {
     res.json({result: false})
 } // here ends deleteFollowNotification
 
+/**
+ * Simple controller to delete a comment notification
+ * @param req
+ * @param res
+ * @return {Promise<void>}
+ */
 async function deleteCommentNotification(req, res) {
     // userId
     const userId = new ObjectId(req.session.userId);
@@ -193,6 +199,29 @@ async function deleteCommentNotification(req, res) {
     res.json({result: false})
 } // end of deeletCommentNotfication
 
+/**
+ * Simple controller to delete a like notification from the database
+ * @param req
+ * @param res
+ * @return {Promise<void>}
+ */
+async function deleteLikeNotification(req, res) {
+    // get the userId
+    const userId = new ObjectId(req.session.userId);
+    // get the date of the notification
+    const date = req.body.date;
+
+    // delete the notification
+    const result = await userModel.deleteLikeNotification(userId, date);
+
+    if (result) {
+        res.json({result: true});
+        return;
+    }
+
+    res.json({result: false});
+} // here ends deleteLikeNotfication
+
 
 module.exports = {
     getFetchNotifications: getFetchNotifications,
@@ -202,5 +231,6 @@ module.exports = {
     getFetchChatNotifications: getFetchChatNotifications,
     deleteChatNotification: deleteChatNotification,
     deleteFollowNotification: deleteFollowNotification,
-    deleteCommentNotification: deleteCommentNotification
+    deleteCommentNotification: deleteCommentNotification,
+    deleteLikeNotification: deleteLikeNotification
 };

@@ -443,6 +443,20 @@ async function saveLikeNotification(notification) {
     return pushResult.modifiedCount > 0;
 } // here ends the function
 
+/**
+ * Deletes a like notification with the given date
+ * @param {ObjectId} userId
+ * @param {String} date
+ * @return {Promise<boolean>} true if deleted successfully
+ */
+async function deleteLikeNotification(userId, date) {
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({_id: userId}, {
+        $pull: {likeNotifications: {date: date}}
+    });
+
+    return result.modifiedCount === 1;
+} // here ends deleteLikeNotification
+
 
 /**
  * Saves a comment Notification to the database,
@@ -691,5 +705,6 @@ module.exports = {
     saveChatNotification: saveChatNotification,
     deleteChatNotification: deleteChatNotification,
     deleteFollowNotification: deleteFollowNotification,
-    deleteCommentNotification: deleteCommentNotification
+    deleteCommentNotification: deleteCommentNotification,
+    deleteLikeNotification: deleteLikeNotification
 }

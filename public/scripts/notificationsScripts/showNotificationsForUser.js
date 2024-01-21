@@ -261,6 +261,12 @@ async function fetchLikesNotifications() {
 
         // add the container to a li and to the ul
         const li = document.createElement('li');
+
+        // create the deleteNotification button
+        const removeNotificationButton = createDeleteNotificationButton(
+            notification, 'like', notificationsLikesList, li
+        )
+        likeContainer.append(removeNotificationButton);
         li.append(likeContainer);
         notificationsLikesList.append(li);
     } // here ends the for loop of notifications
