@@ -504,6 +504,19 @@ async function saveCommentNotification(notification) {
 } // here ends the function
 
 /**
+ * Deletes a notification from the commentNotifications array
+ * @param {ObjectId} userId
+ * @param {String} date
+ * @return {Promise<boolean>} true if the operation was completed successfully
+ */
+async function deleteCommentNotification(userId, date) {
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({_id: userId}, {
+        $pull: {commentNotifications: {date: date}}
+    });
+    return result.modifiedCount === 1;
+} // here ends deleteCommentNotification
+
+/**
  * Saves a follow Notification to the document of the receiverUsername
  * @param {{receiverUsername: String,
  *          senderUsername: String,
@@ -677,5 +690,6 @@ module.exports = {
     saveChat: saveChat,
     saveChatNotification: saveChatNotification,
     deleteChatNotification: deleteChatNotification,
-    deleteFollowNotification: deleteFollowNotification
+    deleteFollowNotification: deleteFollowNotification,
+    deleteCommentNotification: deleteCommentNotification
 }

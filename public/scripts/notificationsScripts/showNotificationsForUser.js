@@ -319,6 +319,11 @@ async function fetchCommentsNotifications() {
 
         // add the container to a li and to the ul
         const li = document.createElement('li');
+        // create the button to remove the notification
+        const removeNotificationButton = createDeleteNotificationButton(notification,
+            'comment', notificationsCommentsList, li);
+        commentContainer.append(removeNotificationButton)
+
         li.append(commentContainer);
         notificationsCommentsList.append(li);
     } // here ends the for loop of notifications

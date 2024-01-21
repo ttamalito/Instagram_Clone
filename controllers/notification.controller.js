@@ -176,6 +176,23 @@ async function deleteFollowNotification(req, res, next) {
     res.json({result: false})
 } // here ends deleteFollowNotification
 
+async function deleteCommentNotification(req, res) {
+    // userId
+    const userId = new ObjectId(req.session.userId);
+
+    // get the date
+    const date = req.body.date;
+
+    // remove the notification
+    const result = await userModel.deleteCommentNotification(userId, date);
+
+    if (result) {
+        res.json({result: true});
+        return;
+    }
+    res.json({result: false})
+} // end of deeletCommentNotfication
+
 
 module.exports = {
     getFetchNotifications: getFetchNotifications,
@@ -184,5 +201,6 @@ module.exports = {
     getFetchFollowNotifications: getFetchFollowNotifications,
     getFetchChatNotifications: getFetchChatNotifications,
     deleteChatNotification: deleteChatNotification,
-    deleteFollowNotification: deleteFollowNotification
+    deleteFollowNotification: deleteFollowNotification,
+    deleteCommentNotification: deleteCommentNotification
 };
