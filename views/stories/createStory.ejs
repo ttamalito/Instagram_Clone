@@ -1,4 +1,5 @@
 <%- include('../includes/head', {pageTitle: 'Create Post'}) %>
+<script src="/public/scripts/stories/uploadFilesForStories.js" defer></script>
 </head>
 
 <body>
@@ -6,13 +7,13 @@
 <%- include('../includes/header') %>
 <main>
     <h1>
-        Create New Post
+        Create New Story
     </h1>
     <form action="/createPost?_csrf=<%= locals.csrfToken %>" method="POST" enctype="multipart/form-data"> <!-- Form is sent to currentUrl/signup via a POST method-->
         <!--<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>"> -->
         <div>
-            <label for="image/video">Image or video</label>
-            <input type="file" id="image/video" name="fileToUpload" required>
+            <label for="filesForStory">Images and/or videos</label>
+            <input type="file" id="filesForStory" name="filesForStory" multiple required>
         </div>
         <div>
             <label for="caption">Caption</label>
@@ -20,7 +21,7 @@
         </div>
 
 
-        <button class="btn">Create Post</button>
+        <button class="btn" id="post-story-button">Post Story</button>
         <p id="switch-form">
             <a href="/">Return home</a>
         </p>

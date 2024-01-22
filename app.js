@@ -23,6 +23,7 @@ const profileRoutes = require('./routes/profile.routes');
 const searchRoutes = require('./routes/search.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const chatRoutes = require('./routes/chat.routes');
+const storiesRoutes = require('./routes/stories.routes');
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.use('/user',profileRoutes);
 app.use('/search', searchRoutes);
 app.use(notificationRoutes);
 app.use('/chat', chatRoutes);
+app.use(storiesRoutes);
 
 // the http server
 let server;
