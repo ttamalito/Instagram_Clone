@@ -1,6 +1,12 @@
 <div class="post">
     <a href="/<%= post.username%>"></a>
-    <img src="/static/images/<%= post.imagePath %>" alt="Post image" style="width: 100px">
+    <% if (post.postType === 'image') { %>
+        <img src="/static/posts/<%= post.fileName %>" alt="Post image" style="width: 100px">
+    <% } else { %>
+        <video controls width="250" height="250" autoplay >
+            <source src="/static/posts/<%= post.fileName %>">
+        </video>
+    <% } %>
     <p id="caption"><%= post.caption %></p>
     <div>
         <span id="like-count-<%= post._id %>">

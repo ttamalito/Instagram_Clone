@@ -30,6 +30,7 @@ const app = express();
 app.use('/public',express.static('public'));
 // serve the images static
 app.use('/static/images', express.static('data/images'));
+app.use('/static/posts', express.static('data/posts'))
 // set the ejs engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
