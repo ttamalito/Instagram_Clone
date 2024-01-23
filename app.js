@@ -12,6 +12,8 @@ const checkLoginMiddleware = require('./middlewares/check-login');
 
 // import the webSocket
 const initiateWebSocketServer = require('./webSockets/webSocketServer');
+const bodyParser = require('body-parser');
+
 
 const PORT = 'mongodb://localhost:27017';
 const databaseName = 'instagram';
@@ -37,6 +39,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 // parse the data
 app.use(express.urlencoded({extended: false}));
+app.use(bodyParser.raw({limit: '10kb'}));
 // create the session
 app.use(expressSession(configSession(PORT, databaseName)));
 // csrft token

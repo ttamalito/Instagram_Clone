@@ -9,8 +9,8 @@
     <h1>
         Create New Story
     </h1>
-    <form action="/createPost?_csrf=<%= locals.csrfToken %>" method="POST" enctype="multipart/form-data"> <!-- Form is sent to currentUrl/signup via a POST method-->
-        <!--<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>"> -->
+    <form enctype="multipart/form-data"> <!-- Form is sent to currentUrl/signup via a POST method-->
+        <input type="hidden" id="csrf_story" name="_csrf" value="<%= locals.csrfToken %>">
         <div>
             <label for="filesForStory">Images and/or videos</label>
             <input type="file" id="filesForStory" name="filesForStory" multiple required>

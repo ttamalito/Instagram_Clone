@@ -23,12 +23,23 @@ buttonToSubmit.addEventListener('click', evt => {
             console.log(`The array buffer is of size: ${fileReader.result.byteLength}`);
             // upload it to the server
             const amountOfChunks = fileReader.result.byteLength/CHUNK_SIZE;
+            // generate a unique id for the file
+            const fileName = `${new Date().getTime()}-${Math.random() * 1000}-${files[i].name}`;
             // loop through all the chunks
             for (let j = 0; j <= amountOfChunks; j++) {
                 const dataToTransfer = fileReader.result.slice(j * CHUNK_SIZE, CHUNK_SIZE * (j+1));
                 // create the http request
-                const response = await fetch(`http://localhost:3000/uploadStory`);
-            }
+                const response = await fetch(`http://localhost:3000/uploadStory?_csrf=${document.querySelector('#csrf_story').value}`, {
+                    'method': 'POST',
+                    'headers': {
+                        "Content-Type": 'application/octet-stream',
+                        "Content-Length": dataToTransfer.byteLength,
+                        "File-Name": fileName
+                    },
+                    'body': dataToTransfer
+                });
+                console.log(response);
+            } // here ends for loop for the chunks
 
 
         })
