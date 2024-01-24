@@ -20,6 +20,7 @@ async function postUploadStory(req, res) {
     // console.log(req.body);
     console.log(typeof req.body)
     // console.log(req.get('file-name'));
+    // path to store the files
     const p = path.join('./data/stories', req.get('file-name'));
     console.log(p)
     fs.appendFileSync(p, req.body);
