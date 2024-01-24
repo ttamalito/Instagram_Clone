@@ -14,9 +14,9 @@ class Stories {
      * Deletes the story for a given user, identifying it by the fileName
      * @param {String} userId
      * @param {String} fileName Name of the file for the corresponding story
-     * @return {Promise<void>}
+     *
      */
-    async deleteStory(userId, fileName) {
+    deleteStory(userId, fileName) {
 
         // check that the user has a story, with the given file
         if (!this.checkUserHasStoryWithFileName(userId, fileName))
@@ -32,6 +32,7 @@ class Stories {
             // else the file was deleted
             // delete the instance in the stories map
             this.storiesMap.delete(fileName);
+            console.log(`deleted: ${fileName}`);
         }) // end of unlink
     } // end of deleteStory
 
@@ -52,9 +53,9 @@ class Stories {
     /**
      * Deletes all the stories that have a date smaller than the argument passed
      * @param {number} date The current date in milliseconds
-     * @return {Promise<void>}
+     *
      */
-    async deleteStories(date) {
+    deleteStories(date) {
         /**
          *
          * @type {*[[String, String]]}
@@ -68,23 +69,27 @@ class Stories {
             } // end of if
         } // end of for loop
         for (const [file, userId] of toDelete) {
-            await this.deleteStory(userId, file);
+            this.deleteStory(userId, file);
         }
     } // end of deletStories
 
     /**
-     * Adds a story to the map
+     * Adds a story to the map, if there are no key with the fileName
      * @param {String} fileName
      * @param {String} userId
      */
     addStory(fileName, userId) {
+        // check if there is a key value pair with that name
+        if (this.storiesMap.has(fileName)) {
+            return;
+        }
         // compute the current date
         const date = Date.now();
         // compute the date to be deleted
         // in 24 hours there are 86.4 million ms
         // const dateToBeDeleted = date + 86400000;
-        // for now do it for 5 minutes (300k milliseconds)
-        const dateToBeDeleted = date + 300000;
+        // for now do it for 2 minutes (120k milliseconds)
+        const dateToBeDeleted = date + 120000;
         // create the object
         const obj = {
             userId: userId,
@@ -93,6 +98,7 @@ class Stories {
         }
         // add it to the map
         this.storiesMap.set(fileName, obj);
+        console.log(`We added: ${fileName} as a story`);
     }
 } // here ends the Stories class
 
@@ -108,5 +114,6 @@ class Stories {
 
 // instantiate the only Stories object
 const stories = new Stories();
+console.log('We have initialized the stories');
 
 module.exports = stories;

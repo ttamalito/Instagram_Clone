@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('node:path');
+const stories = require('../utils/Stories');
+
 /**
  * Simple controller to render the initial page
  * @param req
@@ -18,12 +20,12 @@ async function postUploadStory(req, res) {
     // log the headers
     // console.log(req.headers);
     // console.log(req.body);
-    console.log(typeof req.body)
-    // console.log(req.get('file-name'));
+    const filename = req.get('file-name')
     // path to store the files
-    const p = path.join('./data/stories', req.get('file-name'));
-    console.log(p)
+    const p = path.join('./data/stories', filename);
     fs.appendFileSync(p, req.body);
+    // add the story to the respective data structure
+    stories.addStory(filename, req.session.userId);
     res.json({result: true})
 }
 

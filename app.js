@@ -14,6 +14,11 @@ const checkLoginMiddleware = require('./middlewares/check-login');
 const initiateWebSocketServer = require('./webSockets/webSocketServer');
 const bodyParser = require('body-parser');
 
+// import the Stories object
+const stories = require('./utils/Stories');
+// import the infinite checker
+const infiniteCheckerToDeleteStories = require('./utils/infiniteCheckerToDeleteStories');
+
 
 const PORT = 'mongodb://localhost:27017';
 const databaseName = 'instagram';
@@ -71,7 +76,8 @@ db.connectToDataBase(PORT, databaseName).then(
         server = app.listen(3000);
         console.log('Listening on port 3000');
         initiateWebSocketServer(server);
-
+        // initiate the infinite checker
+        infiniteCheckerToDeleteStories(Date.now());
     }
 ).catch(
     (error) => {
