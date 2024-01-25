@@ -18,7 +18,8 @@ const bodyParser = require('body-parser');
 const stories = require('./utils/Stories');
 // import the infinite checker
 const infiniteCheckerToDeleteStories = require('./utils/infiniteCheckerToDeleteStories');
-
+// import the function to fetch the stories from disk
+const fetchStoriesFromDb = require('./utils/fetchStoriesFromDB');
 
 const PORT = 'mongodb://localhost:27017';
 const databaseName = 'instagram';
@@ -78,6 +79,7 @@ db.connectToDataBase(PORT, databaseName).then(
         initiateWebSocketServer(server);
         // initiate the infinite checker
         infiniteCheckerToDeleteStories(Date.now());
+        fetchStoriesFromDb();
     }
 ).catch(
     (error) => {

@@ -18,6 +18,7 @@ buttonToSubmit.addEventListener('click', evt => {
         fileReader.addEventListener('load', async e => {
             // the file finished loading
             console.log(`Just finished with file with id ${i}`);
+            console.log(`Of type ${files[i].type}`);
             console.log(`finished reading ${files[i].name}`)
             console.log(`we read ${files[i].size} bytes`);
             console.log(`The array buffer is of size: ${fileReader.result.byteLength}`);
@@ -34,7 +35,8 @@ buttonToSubmit.addEventListener('click', evt => {
                     'headers': {
                         "Content-Type": 'application/octet-stream',
                         "Content-Length": dataToTransfer.byteLength,
-                        "File-Name": fileName
+                        "File-Name": fileName,
+                        "mime-type": `${files[i].type}`
                     },
                     'body': dataToTransfer
                 });

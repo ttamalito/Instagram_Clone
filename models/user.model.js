@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const COLLECTION = 'users';
 const ObjectId = require('mongodb').ObjectId;
 const profileUtils = require('../utils/profile.utils');
+const {add} = require("nodemon/lib/rules");
 /**
  * Saves a user to ´users´ collection asynchronously
  * @param email
@@ -36,7 +37,8 @@ async function saveUser(email, password, username, bio, fullname) {
         commentNotifications: [],
         followNotifications: [],
         chats: [],
-        chatNotifications: []
+        chatNotifications: [],
+        stories: []
     })
 } // here ends the function
 
@@ -663,6 +665,61 @@ async function deleteChatNotification(userId, chatData) {
 }
 
 /**
+ * Adds a story to the document with the given userId
+ * @param {ObjectId} userId
+ * @param {String} filename
+ * @param {number} dateCreated
+ * @param {number} dateToBeDeleted
+ * @param {String} mimeType MIME Type of the file to be stored
+ * @return {Promise<boolean>} true if the document was updated successfully
+ */
+async function addStory(userId, filename, dateCreated, dateToBeDeleted, mimeType) {
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({_id: userId}, {
+        $push: {stories: {
+            filename: filename,
+            dateCreated: dateCreated,
+            dateToBeDeleted: dateToBeDeleted,
+            mimeType: mimeType
+            }}
+    });
+    return result.modifiedCount === 1;
+} // ends addStory
+
+/**
+ * Deletes a story for a user with a given filename
+ * @param {ObjectId} userId
+ * @param {String} filename
+ * @return {Promise<boolean>} true if it was deleted susccesfully
+ */
+async function deleteStory(userId, filename) {
+    const result = await db.getDatabase().collection(COLLECTION).updateOne({_id: userId},
+        {
+            $pull: {stories: {filename: filename}}
+        });
+    return result.modifiedCount === 1;
+} // ends deleteStory
+
+/**
+ * Fetches ALL the stories that are stored in the database currently
+ * @return {Promise<[[{filename: String, dateCreated: number, dateToBeDeleted: number, mimeType: String}]]>}
+ */
+async function fetchAllStories() {
+    const stories = await db.getDatabase().collection(COLLECTION).find({}).project({_id: 1, stories: 1});
+    return stories.toArray();
+}
+
+/**
+ * Fetches all the stories for a given user
+ * @param {ObjectId} userId
+ * @return {Promise<[{ObjectId, [{filename: String, dateCreated: number, dateToBeDeleted: number, mimeType: String}]}]>}
+ */
+async function getStoriesForUser(userId) {
+
+    const stories = await db.getDatabase().collection(COLLECTION).findOne({_id: userId}).project({_id: 1, stories:1});
+    return stories.toArray();
+}
+
+/**
  * @typedef {Object} chatNotificationData
  * @property {String} messageFromUsername
  * @property {ObjectId} messageFrom
@@ -706,5 +763,9 @@ module.exports = {
     deleteChatNotification: deleteChatNotification,
     deleteFollowNotification: deleteFollowNotification,
     deleteCommentNotification: deleteCommentNotification,
-    deleteLikeNotification: deleteLikeNotification
+    deleteLikeNotification: deleteLikeNotification,
+    addStory: addStory,
+    deleteStory: deleteStory,
+    fetchAllStories: fetchAllStories,
+    getStoriesForUser: getStoriesForUser
 }

@@ -1,6 +1,7 @@
 const fs = require('node:fs')
 const path = require('node:path');
-
+const userModel = require('../models/user.model');
+const ObjectId = require('mongodb').ObjectId;
 class Stories {
     constructor() {
         /**
@@ -26,14 +27,21 @@ class Stories {
         // get the path to the file
         const pathToFile = path.join('./data/stories', fileName);
         // delete the data from the database
-        // TODO
-        fs.unlink(pathToFile, err => {
-            if (err) throw err;
-            // else the file was deleted
-            // delete the instance in the stories map
-            this.storiesMap.delete(fileName);
-            console.log(`deleted: ${fileName}`);
-        }) // end of unlink
+        // create an object id
+        const objectIdUser = new ObjectId(userId);
+        userModel.deleteStory(objectIdUser, fileName).then(res => {
+            if (!res)
+                throw new Error(`Could not delete a Story from the database for ${fileName}`);
+            // else the story was deleted, delete the file
+            fs.unlink(pathToFile, err => {
+                if (err) throw err;
+                // else the file was deleted
+                // delete the instance in the stories map
+                this.storiesMap.delete(fileName);
+                console.log(`line 41 Stories.js -- deleted: ${fileName}`);
+            }) // end of unlink
+        }).catch(err => console.error(err));
+
     } // end of deleteStory
 
     /**
@@ -74,11 +82,12 @@ class Stories {
     } // end of deletStories
 
     /**
-     * Adds a story to the map, if there are no key with the fileName
+     * Adds a story to the map and to the database.
      * @param {String} fileName
      * @param {String} userId
+     * @param {String} mimeType MIME Type of the file to be stored
      */
-    addStory(fileName, userId) {
+    addStory(fileName, userId, mimeType) {
         // check if there is a key value pair with that name
         if (this.storiesMap.has(fileName)) {
             return;
@@ -88,8 +97,8 @@ class Stories {
         // compute the date to be deleted
         // in 24 hours there are 86.4 million ms
         // const dateToBeDeleted = date + 86400000;
-        // for now do it for 2 minutes (120k milliseconds)
-        const dateToBeDeleted = date + 120000;
+        // for now do it for 10 minutes (600k milliseconds)
+        const dateToBeDeleted = date + 600000;
         // create the object
         const obj = {
             userId: userId,
@@ -98,8 +107,37 @@ class Stories {
         }
         // add it to the map
         this.storiesMap.set(fileName, obj);
-        console.log(`We added: ${fileName} as a story`);
-    }
+        // add it to the database
+        userModel.addStory(new ObjectId(userId), fileName, date, dateToBeDeleted, mimeType).then(res => {
+            if (!res)
+                throw new Error(`Could not add Story for ${fileName}`);
+            // else it was deleted successfully
+
+            console.log(`We added: ${fileName} as a story`);
+        }).catch(err => {console.error(err)})
+
+    } // ends addStory
+
+    /**
+     * Adds a story to the map only (Saved in Memory)
+     * @param {String} userId
+     * @param {String} filename
+     * @param {number} dateCreated
+     * @param {number} dateToBeDeleted
+     */
+    addStoryToMapOnly(userId, filename, dateCreated, dateToBeDeleted) {
+        if (this.storiesMap.has(filename)) {
+            return;
+        }
+        const obj = {
+            userId: userId,
+            dateCreated: dateCreated,
+            dateToBeDeleted: dateToBeDeleted
+        }
+        // add it to the map
+        this.storiesMap.set(filename, obj);
+
+    } // ends addStoryToMapOnly
 } // here ends the Stories class
 
 
@@ -114,6 +152,5 @@ class Stories {
 
 // instantiate the only Stories object
 const stories = new Stories();
-console.log('We have initialized the stories');
 
 module.exports = stories;
