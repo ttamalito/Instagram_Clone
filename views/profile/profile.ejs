@@ -5,6 +5,7 @@
 <script src="/public/scripts/profileScripts/unfollowScript.js" defer></script>
 <script src="/public/scripts/profileScripts/displayAndCloseFollowers.js" defer></script>
 <script src="/public/scripts/profileScripts/displayAndCloseFollowing.js" defer></script>
+<script src="/public/scripts/profileScripts/fetchStories.js" defer></script>
 </head>
 
 <body>
@@ -34,6 +35,8 @@
             <button id="unfollow-user" value="<%= requesteeUsername %>">Unfollow user</button>
             <% } %>
         <% if (following || ownProfile || publicProfile ) { %>
+                    <button id="stories-button-profile" style="visibility: hidden" value="<%= requesteeUserId %>"></button>
+                    <a href="http://localhost:3000/stories/<%= requesteeUsername%>/" style="visibility: hidden" id="stories-anchor-profile"></a>
                     <% if (ownProfile) { %>
                         <a href="/user/edit/<%= requesteeUsername %>">Edit Profile</a>
                     <% } %>

@@ -711,12 +711,14 @@ async function fetchAllStories() {
 /**
  * Fetches all the stories for a given user
  * @param {ObjectId} userId
- * @return {Promise<[{ObjectId, [{filename: String, dateCreated: number, dateToBeDeleted: number, mimeType: String}]}]>}
+ * @return {Promise<{ObjectId, [{filename: String, dateCreated: number, dateToBeDeleted: number, mimeType: String}]}>}
  */
 async function getStoriesForUser(userId) {
 
-    const stories = await db.getDatabase().collection(COLLECTION).findOne({_id: userId}).project({_id: 1, stories:1});
-    return stories.toArray();
+    return await db.getDatabase().collection(COLLECTION).findOne({_id: userId}, {projection: {
+            _id: 1,
+            stories: 1
+        }});
 }
 
 /**
