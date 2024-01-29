@@ -3,6 +3,8 @@ const path = require('node:path');
 const stories = require('../utils/Stories');
 const userModel = require('../models/user.model')
 const {ObjectId} = require("mongodb");
+const userConnections = require('../utils/userConnections');
+
 
 /**
  * Simple controller to render the initial page
@@ -57,12 +59,16 @@ async function displayStory(req, res, next) {
     const filename = req.params.filename;
     // get the sequence (to see if there are more stories)
     const sequenceNumber = req.params.sequence;
+    res.attachment(filename);
+    // res.render('stories/story', {username: owner, filename:filename, sequenceNumber: sequenceNumber });
     // retrieve the file from disk, by creating a ReadableStream
     const pathOfFile = path.join('./data/stories', filename);
     const readStream = fs.createReadStream(pathOfFile, {highWaterMark: 128*1024}); // 128Kb
     readStream.on('close', () => {
         console.log(`Stream Closed`);
         console.log(`We read ${readStream.bytesRead} bytes`);
+        // close the response
+        res.end();
     });
     let n = 1;
     let i;
@@ -78,18 +84,34 @@ async function displayStory(req, res, next) {
             i = Date.now();
             console.log(`${m} milliseconds difference bewtween events`);
         }
-        console.log(`There are ${chunk.byteLength} bytes ready to be read`)
-        // pause the stream for 5 milliseconds
+        console.log(` We sent ${chunk.byteLength} bytes`)
+        // send the raw bytes
+        //const connection = userConnections.getSSEConnectionForUser(req.session.userId);
+        //connection.write(chunk, callback=() => {console.log('Chunk was flushed (I dont know what is)')});
+        res.write(chunk);
+        // pause the stream for 1 second
         readStream.pause();
 
         setTimeout(() => {
             readStream.resume()
             console.log(`Amount of bytes ready to be read: ${readStream.readableLength}`);
-        }, 5000)
+        }, 500)
     });
-    res.end()
+    // res.end('Hello World');
 }
 
+
+function renderStory(req, res) {
+    // user is already authenticated
+    // get the user that is the owner of the stories
+    const owner = req.params.username;
+    // get the filename
+    const filename = req.params.filename;
+    // get the sequence (to see if there are more stories)
+    const sequenceNumber = req.params.sequence;
+
+    res.render('stories/story', {username: owner, filename:filename, sequenceNumber: sequenceNumber });
+}
 
 /*
 function whatever (args) {
@@ -105,5 +127,6 @@ module.exports = {
     getCreateStory: getCreateStory,
     postUploadStory: postUploadStory,
     getStoriesForUser: getStoriesForUser,
-    displayStory:displayStory
+    displayStory:displayStory,
+    renderStory: renderStory
 }

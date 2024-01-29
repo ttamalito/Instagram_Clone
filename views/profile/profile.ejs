@@ -36,7 +36,7 @@
             <% } %>
         <% if (following || ownProfile || publicProfile ) { %>
                     <button id="stories-button-profile" style="visibility: hidden" value="<%= requesteeUserId %>"></button>
-                    <a href="http://localhost:3000/stories/<%= requesteeUsername%>/" style="visibility: hidden" id="stories-anchor-profile"></a>
+                    <a href="http://localhost:3000/renderStory/<%= requesteeUsername%>/" style="visibility: hidden" id="stories-anchor-profile"></a>
                     <% if (ownProfile) { %>
                         <a href="/user/edit/<%= requesteeUsername %>">Edit Profile</a>
                     <% } %>

@@ -51,6 +51,7 @@ sse.addEventListener('follow_request', e => {
 
 // add the event listener for a message notification
 sse.addEventListener('message', e => {
+    console.log(`We received a message`);
     const data = JSON.parse(e.data);
     console.log(data);
     modifyNotificationsButton();

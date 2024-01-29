@@ -1,0 +1,15 @@
+<%- include('../includes/head', {pageTitle: 'Instagram'}) %>
+<script src="/public/scripts/stories/fetchStoriesScript.js" defer></script>
+</head>
+
+<body>
+<!--Include the header-->
+<%- include('../includes/header') %>
+<main>
+    <input type="hidden" id="story-owner-username" value="<%= username %>">
+    <input type="hidden" id="story-filename" value="<%= filename %>">
+    <input type="hidden" id="story-sequence-number" value="<%= sequenceNumber %>">
+    <img id="story-image" alt="">
+    <video id="story-video"></video>
+</main>
+<%- include('../includes/footer') %>

@@ -17,6 +17,9 @@ router.get('/getStories/:userId', storiesController.getStoriesForUser);
 // get route to fetch a single story
 router.get('/stories/:username/:filename/:sequence', redirectIfNotLoggedIn, storiesController.displayStory);
 
+// get route to render the page
+router.get('/renderStory/:username/:filename/:sequence', redirectIfNotLoggedIn, storiesController.renderStory);
+
 
 
 module.exports = router;
