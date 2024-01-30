@@ -97,8 +97,8 @@ class Stories {
         // compute the date to be deleted
         // in 24 hours there are 86.4 million ms
         // const dateToBeDeleted = date + 86400000;
-        // for now do it for 10 minutes (600k milliseconds)
-        const dateToBeDeleted = date + 600000;
+        // for now do it for 5 hours (18 million milliseconds)
+        const dateToBeDeleted = date + 18000000;
         // create the object
         const obj = {
             userId: userId,

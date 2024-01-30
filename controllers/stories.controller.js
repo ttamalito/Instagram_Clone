@@ -95,7 +95,7 @@ async function displayStory(req, res, next) {
         setTimeout(() => {
             readStream.resume()
             console.log(`Amount of bytes ready to be read: ${readStream.readableLength}`);
-        }, 500)
+        }, 0)
     });
     // res.end('Hello World');
 }
@@ -113,6 +113,30 @@ function renderStory(req, res) {
     res.render('stories/story', {username: owner, filename:filename, sequenceNumber: sequenceNumber });
 }
 
+/**
+ * Simple Controller to fetch all the stories
+ * @param req
+ * @param res
+ * @return {Promise<void>}
+ */
+async function getMoreStories(req, res) {
+    // get the username
+    const username = req.params.username;
+
+    // get a corresponding user
+    const user = await userModel.retrieveUserByUsername(username);
+
+    // check if null
+    if (!user) {
+        res.status(404).end();
+        return;
+    }
+
+    // else the user exists, fetch the amount of stories
+    const stories = user.stories;
+    res.json({stories: stories});
+}
+
 /*
 function whatever (args) {
     // code to execute
@@ -128,5 +152,6 @@ module.exports = {
     postUploadStory: postUploadStory,
     getStoriesForUser: getStoriesForUser,
     displayStory:displayStory,
-    renderStory: renderStory
+    renderStory: renderStory,
+    getMoreStories: getMoreStories
 }

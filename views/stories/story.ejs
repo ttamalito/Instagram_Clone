@@ -6,10 +6,12 @@
 <!--Include the header-->
 <%- include('../includes/header') %>
 <main>
+    <h1> Stories of <%= username %></h1>
     <input type="hidden" id="story-owner-username" value="<%= username %>">
     <input type="hidden" id="story-filename" value="<%= filename %>">
     <input type="hidden" id="story-sequence-number" value="<%= sequenceNumber %>">
-    <img id="story-image" alt="">
-    <video id="story-video"></video>
+    <img id="story-image" alt="" style="height: 250px; width: 250px; visibility: hidden" >
+    <video id="story-video" controls  width="250" height="250" autoplay style="visibility: hidden"></video>
+    <a id="next-story-anchor" style="visibility: hidden">Next Story</a>
 </main>
 <%- include('../includes/footer') %>
