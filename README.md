@@ -14,16 +14,16 @@ anything different, as I just started learning Backend development, I would love
 experienced people.
 
 
-## As of January 2024, the project has the following features.
+## As of February 2024, the project has the following features.
 * Creating a Profile
 * Updating the profile details (profile picture, Bio, etc...)
 * Making the Profile Public or Private
 * Follow and Unfollow other users.
-* Making Posts (Pictures only, video support coming soon)
+* Making Posts (Pictures and videos)
 * Liking and Commenting Posts of other users
 * Receive in-app notifications when the user receives a like, comment, a follow request or a new message. This is done using Server-Sent Events
 * Chat functionality to message other users in real time, using WebSockets
-
+* Uploading stories, that are deleted automatically after some time (just like real instagram)
 
 ## Technical details
  ### Storage
