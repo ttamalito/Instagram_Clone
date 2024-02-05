@@ -7,24 +7,22 @@ const userConnections = require('../utils/userConnections');
 
 
 /**
- * Renders the initial page
+ * Sends the necessary data to render the Home page
  * @param req
  * @param res
  * @param next
  * @returns {Promise<void>}
  */
 async function base(req, res, next) {
-
-
+    //console.log(req.headers)
+    //console.log(req.session.id);
     //printSongsForSophia(89, 3, 40, 74, 8, 150, 150, 150, 150, 150)
     //const file = fs.readFileSync(filePath, 'utf8');
     //console.log(file)
-
-    //console.log(`res.locals.amountNotifications = ${res.locals.amountNotifications}`);
-    // just render the initial file
-    res.render('index', {
-        posts: []
-    });
+    // TODO - Add logic to send if the user is logged in
+    res.json({username: 'jose',
+        loggedIn: false
+    })
 
 }
 

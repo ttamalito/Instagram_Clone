@@ -30,7 +30,7 @@ function createSessionstore(session, url, databaseName) {
  */
 function createSessionConfig(url, databaseName) {
     const config = {
-        name: 'Session Cookie',
+        name: 'React_Cookie',
         resave: false,
         saveUninitialized: false,
         secret: 'super secret',
