@@ -7,7 +7,7 @@ const userConnections = require('../utils/userConnections');
 
 
 /**
- *
+ * Renders the initial page
  * @param req
  * @param res
  * @param next
