@@ -6,7 +6,7 @@ const path = require('path');
 // import files
 const db = require('./database/databaseConfig');
 const configSession = require('./sessions/session.config');
-const addCsrfToken = require('./middlewares/csrf-Token');
+//const addCsrfToken = require('./middlewares/csrf-Token');
 const checkLoginMiddleware = require('./middlewares/check-login');
 const addCORSHeader = require('./middlewares/addCORSHeader');
 //const saveConnectionMiddleware = require('./middlewares/save-connection-server-sent-event');
@@ -49,12 +49,12 @@ app.use(express.urlencoded({extended: false}));
 app.use(bodyParser.raw({limit: '10kb'}));
 // create the session
 app.use(expressSession(configSession(PORT, databaseName)));
-// csrft token
-app.use(csurf());
-app.use(addCsrfToken)
+
+//app.use(addCsrfToken)
 // check if the user is loggedIn
 app.use(checkLoginMiddleware);
 app.use(addCORSHeader);
+app.use(csurf());
 //app.use(saveConnectionMiddleware);
 
 

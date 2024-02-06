@@ -5,7 +5,8 @@
  * @param next
  */
 function addCsrfToken(req, res, next) {
-    res.locals.csrfToken = req.csrfToken();
+    // res.locals.csrfToken = req.csrfToken();
+    //res.csrfToken = req.csrfToken();
     next(); // go to the next middleware
 }
 

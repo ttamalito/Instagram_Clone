@@ -1,5 +1,8 @@
 const express = require('express');
 const authController = require('../controllers/auth.controller');
+
+// middleware to add a csrfToken
+//const addCsrfToken = require('../middlewares/csrf-Token');
 const router = express.Router()
 
 // get login

@@ -78,10 +78,17 @@ function getLogin(req, res, next) {
         return;
     }
 
-    // else render
-    res.render('auth/login');
+    // just reply with the csrf token
+    res.json({csrf: req.csrfToken()});
 } // here ends the page
 
+/**
+ * Controller to log a user in with a POST request
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function postLogin(req, res, next) {
     // get the data
     const email = req.body.email;
