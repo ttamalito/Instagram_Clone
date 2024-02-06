@@ -14,17 +14,23 @@ const userConnections = require('../utils/userConnections');
  * @returns {Promise<void>}
  */
 async function base(req, res, next) {
-    console.log(req.headers)
+    //console.log(req.headers)
     //console.log(req.session.id);
     //printSongsForSophia(89, 3, 40, 74, 8, 150, 150, 150, 150, 150)
     //const file = fs.readFileSync(filePath, 'utf8');
     //console.log(file)
-    // TODO - Add logic to send if the user is logged in
-    res.json({username: 'jose',
-        loggedIn: false
+    let username = '';
+    let loggedIn = false;
+    if (req.session.userId) {
+        // the user is loggedIn
+        loggedIn = true;
+        username = req.session.username;
+    }
+    res.json({username: username,
+        loggedIn: loggedIn
     })
 
-}
+} // end of base controller
 
 /**
  * Checks that the user is logged in, if so it will save the connection to the

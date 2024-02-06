@@ -84,7 +84,10 @@ function getLogin(req, res, next) {
     }
 
     // just reply with the csrf token
-    res.json({csrf: req.csrfToken()});
+    res.json(
+        {csrf: req.csrfToken(),
+            result: true
+        });
 } // here ends the page
 
 /**
@@ -133,7 +136,7 @@ async function postLogin(req, res, next) {
     // console.log(res.getHeaders());
     req.session.save(() => {
         // redirect once the session was modified
-        res.redirect(`http://localhost:8080`);
+        res.json({result: true})
     })
 
 } // here ends postLogin
