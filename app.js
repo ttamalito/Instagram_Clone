@@ -45,8 +45,11 @@ app.use('/static/posts', express.static('data/posts'))
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 //app.set('trust proxy', 1);
-// parse the data
-app.use(express.urlencoded({extended: false}));
+// parse the data for multipart/form-data
+app.use(express.urlencoded({
+    extended: false,
+    type: 'application/x-www-form-urlencoded'
+}));
 app.use(bodyParser.raw({limit: '10kb'}));
 // create the session
 app.use(expressSession(configSession(PORT, databaseName)));

@@ -6,7 +6,8 @@
  * @param next
  */
 function addCORSHeader(req, res, next) {
-    res.append('Access-Control-Allow-Origin', '*');
+    res.append('Access-Control-Allow-Origin', 'http://localhost:8080');
+    res.append('Access-Control-Allow-Credentials', 'true');
     next()
 }
 

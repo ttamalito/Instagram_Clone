@@ -13,14 +13,18 @@ function getSignUp(req, res, next) {
     // checked if logged in
     if (checkloggedInUtils.checkLoggedIn(req)) {
         // he is logged in
-        res.redirect('/');
+        // send that the operation could not be performed
+        res.json({result: false});
         return;
     }
 
     // else
-    // render the page
-    res.render('auth/signup');
-}
+    // send the csrf Token
+    res.json({
+        result: true,
+        csrf: req.csrfToken()
+    });
+} // end of getSignUp
 
 /**
  * Validates and saves a user to the database
@@ -45,7 +49,7 @@ async function postSignUp(req, res, next) {
     // check if email is unique
     if (!uniqueEmail) {
         // not unique email
-        res.redirect('/signup');
+        res.json({result: false});
         return;
     }
 
@@ -53,14 +57,15 @@ async function postSignUp(req, res, next) {
 
     if (!uniqueUsername) {
         // not unique username
-        res.redirect('/signup');
+        // the operation was not successful
+        res.json({result: false});
         return;
     }
 
     // otherwise we save the user to the database
      await userModel.saveUser(email, password, username, bio, fullname);
     // redirect to login
-    res.redirect('/login');
+    res.json({result: true})
 } // here ends the function
 
 /**
@@ -74,7 +79,7 @@ function getLogin(req, res, next) {
     const loggedIn = checkloggedInUtils.checkLoggedIn(req);
     if (loggedIn) {
         // user is logged in
-        res.redirect('/');
+        res.json({result: false})
         return;
     }
 
@@ -106,8 +111,8 @@ async function postLogin(req, res, next) {
     }
     if (!username || !userEmail) {
         // there is no user
-        console.log('There is no user with that email or username');
-        res.redirect('/login');
+        res.redirect(`http://localhost:8080/login`);
+        //res.redirect('/login');
         return;
     }
 
@@ -117,7 +122,8 @@ async function postLogin(req, res, next) {
     const matchingPassword = await userModel.hasMatchingPassword(password, hashedPassword);
     if (!matchingPassword) {
         // password doesnt match
-        res.redirect('/login');
+        // res.redirect('/login');
+        res.redirect(`http://localhost:8080/login`);
         return;
     }
 
@@ -127,7 +133,7 @@ async function postLogin(req, res, next) {
     // console.log(res.getHeaders());
     req.session.save(() => {
         // redirect once the session was modified
-        res.redirect('/');
+        res.redirect(`http://localhost:8080`);
     })
 
 } // here ends postLogin
