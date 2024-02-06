@@ -14,7 +14,7 @@ const userConnections = require('../utils/userConnections');
  * @returns {Promise<void>}
  */
 async function base(req, res, next) {
-    //console.log(req.headers)
+    console.log(req.headers)
     //console.log(req.session.id);
     //printSongsForSophia(89, 3, 40, 74, 8, 150, 150, 150, 150, 150)
     //const file = fs.readFileSync(filePath, 'utf8');

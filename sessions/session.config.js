@@ -36,7 +36,8 @@ function createSessionConfig(url, databaseName) {
         secret: 'super secret',
         store: createSessionstore(expressSession, url, databaseName),
         cookie: {
-            maxAge: 3600000 /* 1 hour*/
+            maxAge: 3600000 /* 1 hour*///,
+            //sameSite: 'none'
         }
     }
 

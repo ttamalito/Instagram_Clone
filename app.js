@@ -44,6 +44,7 @@ app.use('/static/posts', express.static('data/posts'))
 // set the ejs engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+//app.set('trust proxy', 1);
 // parse the data
 app.use(express.urlencoded({extended: false}));
 app.use(bodyParser.raw({limit: '10kb'}));
