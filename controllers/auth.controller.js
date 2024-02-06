@@ -114,7 +114,9 @@ async function postLogin(req, res, next) {
     }
     if (!username || !userEmail) {
         // there is no user
-        res.redirect(`http://localhost:8080/login`);
+        res.json({result: false,
+        url: 'http://localhost:8080/login'
+        })
         //res.redirect('/login');
         return;
     }
@@ -126,7 +128,9 @@ async function postLogin(req, res, next) {
     if (!matchingPassword) {
         // password doesnt match
         // res.redirect('/login');
-        res.redirect(`http://localhost:8080/login`);
+        res.json({result: false,
+            url: 'http://localhost:8080/login'
+        })
         return;
     }
 
@@ -148,13 +152,16 @@ async function postLogin(req, res, next) {
  * @param res
  * @param next
  */
-function postLogout(req, res, next) {
+function getLogout(req, res, next) {
     // check that the user is loggedIn
     const loggedIn = checkloggedInUtils.checkLoggedIn(req);
     if (!loggedIn) {
         console.log('user is not logged in and trying to logout!');
         // user is not loggedIN
-        res.redirect('/');
+        res.json({
+            result: false,
+            url: 'http://localhost:8080'
+        })
         return;
     }
     // the userId
@@ -174,8 +181,9 @@ function postLogout(req, res, next) {
 
 
     // all good
-    res.redirect('/');
-} // here ends postLogout
+    // send the result back
+    res.json({result: true});
+} // here ends getLogout
 
 
 
@@ -184,5 +192,5 @@ module.exports = {
     postSignUp: postSignUp,
     getLogin: getLogin,
     postLogin: postLogin,
-    postLogout: postLogout
+    getLogout: getLogout
 }
