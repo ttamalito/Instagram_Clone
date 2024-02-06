@@ -17,7 +17,6 @@ form.addEventListener('submit', async e =>
             urlString += '=';
             urlString += pair[1];
         }
-        console.log(urlString);
         // send the request
         const response = await fetch(`http://localhost:3000/search/searchUser${urlString}`,
             {

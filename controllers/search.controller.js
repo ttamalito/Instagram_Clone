@@ -17,12 +17,12 @@ async function getSearchUser(req, res, next) {
     // check if null
     if (!user) {
         // no user
-        res.json({user: null});
+        res.json({users: []});
         return;
     }
 
     // else there is a user
-    res.json({user: user.username})
+    res.json({users: [user.username]})
 } // here ends the method
 
 
