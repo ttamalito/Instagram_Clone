@@ -600,6 +600,25 @@ async function getRemoveRequestToFollow(req, res, next) {
     res.redirect(`/user/${userWithRequestToFollowList.username}`);
 } // here ends getRomveRequestToFollow
 
+/**
+ * Controller to respond to a OPTIONS request to unfollow a user
+ * @param req
+ * @param res
+ * @param next
+ */
+function optionsUnfollow(req, res, next) {
+    // the CORS headers were set previously by a middleware
+    // just send the status code
+    // first destroy the session, depending on the browser they might send the request without credentials
+    if (!req.session.userId) {
+        // no user id, destroy the session
+        req.session.destroy(() => {
+            // once the session is destroyed, send the response
+            res.status(204).end();
+        })
+    }
+} // end of optionsUnfollow
+
 module.exports = {
     getProfile: getProfile,
     postFollow: postFollow,
@@ -611,5 +630,6 @@ module.exports = {
     getFollowRequests: getFollowRequests,
     getAcceptFollowRequest: getAcceptFollowRequest,
     getRejectFollowRequest: getRejectFollowRequest,
-    getRemoveRequestToFollow: getRemoveRequestToFollow
+    getRemoveRequestToFollow: getRemoveRequestToFollow,
+    optionsUnfollow: optionsUnfollow
 }

@@ -12,6 +12,9 @@ router.post('/follow/:userId', profileController.postFollow);
 // put route to unfollow
 router.put('/unfollow/:username', profileController.putUnfollow);
 
+// options route to unfollow
+router.options('/unfollow/:username', profileController.optionsUnfollow)
+
 // get route to render the edit profile page
 router.get('/edit/:username', profileController.getEditProfile);
 
