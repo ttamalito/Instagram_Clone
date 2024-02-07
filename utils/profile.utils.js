@@ -55,7 +55,7 @@ function getCount(post, indicator) {
  * Checks if a given user has liked the given post
  * @param post
  * @param {ObjectId} userId
- * @returns {String}
+ * @returns {String} Either Like or Dislike
  */
 function checkLikedByUser(post, userId) {
 

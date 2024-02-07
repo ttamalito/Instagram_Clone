@@ -90,11 +90,11 @@ async function getProfile(req, res, next) {
         requestedToFollow: requestedToFollow
     }
 
-    // render the page
-    res.render('profile/profile', views);
-    // res.send('whatever')
+    // send the data as json
+    res.json(views)
 
-}
+
+} // end of getProfile controller
 
 /**
  * Controller to follow a user with a post request
