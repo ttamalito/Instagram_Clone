@@ -58,8 +58,15 @@ app.use(expressSession(configSession(PORT, databaseName)));
 // check if the user is loggedIn
 app.use(checkLoginMiddleware);
 app.use(addCORSHeader);
-app.use(csurf());
+app.use(csurf({
+    ignoreMethods: ['GET', 'HEAD', 'OPTIONS', 'PUT']
+}));
 //app.use(saveConnectionMiddleware);
+
+app.options('user/unfollow/:username', (req, res) => {
+    res.status(204);
+    res.end();
+} );
 
 
 

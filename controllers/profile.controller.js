@@ -6,7 +6,8 @@ const {checkLoggedIn} = require("../utils/checkLoggedIn");
 const LikeCommentEnum = require('../utils/LikeCommentEnum');
 const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
 
-
+// global variables
+const global = require('../utils/global');
 
 /**
  * Displays the user profile
@@ -168,11 +169,22 @@ async function postFollow(req, res,  next) {
 
 } // here ends the method
 
-async function postUnfollow(req, res, next) {
+/**
+ * Controller to unfollow a user, through a PUT request
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
+async function putUnfollow(req, res, next) {
     // check that the user is loggedIn
     if (!checkLoggedIn(req)) {
         // not logged in
-        res.redirect('/');
+        // redirect to login
+        res.json({
+            result: false,
+            url: `${global.frontend}/login`
+        });
         return;
     }
 
@@ -185,19 +197,29 @@ async function postUnfollow(req, res, next) {
     // check if null
     if (!requestee) {
         // no user was found
-        res.redirect('/');
+        res.json({
+            result: false,
+            url: `${global.frontend}`
+        })
         return;
     }
 
     const result = await userModel.unFollowUser(new ObjectId(requesterId), requestee._id);
 
     if (!result) {
-        // something went wrong while unfollowing
-        res.redirect('/');
+        // something went wrong while unfollowing, the operation could not be performed
+        res.json({
+            result: false,
+            url: `${global.frontend}`
+        })
+        return;
     }
     // else just redirect to the requestee's profile
-    res.redirect(`/user/${requesteeUsername}`);
-}
+    // just say that the result if true
+    res.json({
+        result: true
+    });
+} // end of putUnfollow
 
 /**
  * Renders the page to edit the profile settings
@@ -581,7 +603,7 @@ async function getRemoveRequestToFollow(req, res, next) {
 module.exports = {
     getProfile: getProfile,
     postFollow: postFollow,
-    postUnfollow: postUnfollow,
+    putUnfollow: putUnfollow,
     getEditProfile: getEditProfile,
     postEditProfile: postEditProfile,
     getFollowers: getFollowers,

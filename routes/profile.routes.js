@@ -9,8 +9,8 @@ router.get('/:username', profileController.getProfile);
 // post to follow a user /user/follow/:userId
 router.post('/follow/:userId', profileController.postFollow);
 
-// post route to unfollow
-router.post('/unfollow/:username', profileController.postUnfollow);
+// put route to unfollow
+router.put('/unfollow/:username', profileController.putUnfollow);
 
 // get route to render the edit profile page
 router.get('/edit/:username', profileController.getEditProfile);
