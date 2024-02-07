@@ -9,7 +9,7 @@ router.get('/createPost', postController.getCreatePost);
 // post /createPost
 router.post('/createPost', postPictureMiddleware,postController.postCreatePost);
 
-// post /like/:postId
+// get /like/:postId, route to like a post
 router.get('/like/:postId', postController.getLike);
 
 // get /post/liked/:postId

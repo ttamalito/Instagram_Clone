@@ -7,6 +7,9 @@ const userConnections = require('../utils/userConnections');
 const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
 const commentModel = require('../models/comment.model');
 const {isFollowed} = require('../utils/profile.utils');
+
+// import the global variables
+const global = require('../utils/global');
 /**
  * GET for /createPost
  * @param req
@@ -114,7 +117,10 @@ async function getLike(req, res, next) {
     if (!loggedIn) {
         // the user is not logged in
         // redirect to login
-        res.redirect('/login');
+        res.redirect({
+            result: false,
+            url: `${global.frontend}/login`
+        });
         return;
     }
     // the user is logged in
@@ -150,10 +156,16 @@ async function getLike(req, res, next) {
     } catch (err) {
         console.error(`line 136 post.controller ${err}`);
     } // end of catch-try block
-
+    let likeValue = 'Like';
+    if (likeResult)
+        likeValue = 'Dislike'
     // else all good.
-    // redirect to the profile of the user
-    res.json({likeCount: likeCount});
+    // return the new likeCount
+    res.json({
+        likeCount: likeCount,
+        result: true,
+        likeValue: likeValue
+    });
 
 } // here ends getLike
 
