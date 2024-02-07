@@ -7,7 +7,10 @@ const profilePicUpload = require('../middlewares/profilePic-upload');
 router.get('/:username', profileController.getProfile);
 
 // post to follow a user /user/follow/:userId
-router.post('/follow/:userId', profileController.postFollow);
+router.put('/follow/:username', profileController.putFollow);
+
+// options route for follow/:userId
+router.options('/follow/:username', profileController.optionsUnfollow); // it is the same logic as optionsUnfollow
 
 // put route to unfollow
 router.put('/unfollow/:username', profileController.putUnfollow);

@@ -98,33 +98,41 @@ async function getProfile(req, res, next) {
 } // end of getProfile controller
 
 /**
- * Controller to follow a user with a post request
+ * Controller to follow a user with a put request
+ * If the profile is private it adds the user to the corresponding list
+ * requestToFollow list in the document of the user
  * Sends the corresponding notification to the user
  * @param req
  * @param res
  * @param next
  * @returns {Promise<void>}
  */
-async function postFollow(req, res,  next) {
+async function putFollow(req, res,  next) {
     // check that the user is loggedIn
     if (!checkLoggedIn(req)) {
         // user is not loggedIn
-        res.redirect('/login');
+        res.json({
+            result: false,
+            url: `${global.frontend}/login`
+        });
         return;
     }
 
     // else follow the user in the req.params
     const userMakingRequestToFollow = req.session.userId;
-    const userBeingRequested = req.params.userId;
+    const userBeingRequested = req.params.username;
 
     // check if the user BeingRequested exists and if the profile is private
 
-    const requestee = await userModel.getUser(new ObjectId(userBeingRequested));
+    const requestee = await userModel.retrieveUserByUsername(userBeingRequested)
 
     if (!requestee) {
         // there is no such user
         console.log('You are trying to follow a Ghost! -line 123 profile controller');
-        res.redirect('/')
+        res.json({
+            result: false,
+            url: `${global.frontend}`
+        });
         return;
     }
     // user wanting to follow
@@ -133,7 +141,7 @@ async function postFollow(req, res,  next) {
     // the user to follow exists, check if private of public
     if (requestee.public) {
         // it is public, so follow
-        const followResult = await userModel.followUser(userMakingRequestToFollow, userBeingRequested);
+        const followResult = await userModel.followUser(userMakingRequestToFollow, requestee._id.toString());
 
         if (followResult) {
             // the operation was resolved successfully
@@ -146,13 +154,16 @@ async function postFollow(req, res,  next) {
 
         } // if followResult
         // all good
-        res.redirect(`/user/${requestee.username}`);
+        res.json({
+            result: true,
+            following: true
+        });
         return;
-    }
+    } //if ---- the user has a public profile
 
     // the user is private so add the user to the list of requestTO follow
     const result = await userModel.saveRequestToFollowUser(new ObjectId(userMakingRequestToFollow),
-        new ObjectId(userBeingRequested));
+        requestee._id);
 
     // check if the operation was performed succesfully
     if (result) {
@@ -165,9 +176,13 @@ async function postFollow(req, res,  next) {
         } // end if( userhasConnection)
     } // end if (result)
 
-    res.redirect(`/user/${requestee.username}`);
-
+    // the user was requested to follow
+    res.json({
+        result: true,
+        following: false
+    });
 } // here ends the method
+
 
 /**
  * Controller to unfollow a user, through a PUT request
@@ -621,7 +636,7 @@ function optionsUnfollow(req, res, next) {
 
 module.exports = {
     getProfile: getProfile,
-    postFollow: postFollow,
+    putFollow: putFollow,
     putUnfollow: putUnfollow,
     getEditProfile: getEditProfile,
     postEditProfile: postEditProfile,
