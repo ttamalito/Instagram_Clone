@@ -3,11 +3,14 @@ const postPictureMiddleware = require('../middlewares/postPicture-upload');
 const postController = require('../controllers/post.controller');
 const router = express.Router();
 
+// redirect if not logged in middleware
+const redirectIfNotLoggedIn = require('../middlewares/redirectIfNotLoggedIn');
+
 // get create posts
-router.get('/createPost', postController.getCreatePost);
+router.get('/createPost', redirectIfNotLoggedIn, postController.getCreatePost);
 
 // post /createPost
-router.post('/createPost', postPictureMiddleware,postController.postCreatePost);
+router.post('/createPost', redirectIfNotLoggedIn, postPictureMiddleware ,postController.postCreatePost);
 
 // get /like/:postId, route to like a post
 router.get('/like/:postId', postController.getLike);

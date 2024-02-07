@@ -63,11 +63,6 @@ app.use(csurf({
 }));
 //app.use(saveConnectionMiddleware);
 
-app.options('user/unfollow/:username', (req, res) => {
-    res.status(204);
-    res.end();
-} );
-
 
 
 // use the routes

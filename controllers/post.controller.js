@@ -11,28 +11,20 @@ const {isFollowed} = require('../utils/profile.utils');
 // import the global variables
 const global = require('../utils/global');
 /**
- * GET for /createPost
+ * GET for /createPost, it sends the CSRF token to the client
  * @param req
  * @param res
  * @param next
  */
 function getCreatePost(req, res, next) {
-    // check that you are loggedIn
-    const loggedIn = checkLoggedIn.checkLoggedIn(req);
-
-    if (!loggedIn) {
-        // user is not loggedIn
-        // here we can flash the data to the session
-        // TODO
-        // redirect to login
-        res.redirect('/login');
-        return;
-    }
+    // check that you are loggedIn is done before
 
     // the user is logged in
-    // render the page
-    res.render('posts/createPost');
-
+    // send the csrf token
+    res.json({
+        csrf: req.csrfToken(),
+        result: true
+    });
 } // here ends the function
 
 /**
@@ -43,16 +35,7 @@ function getCreatePost(req, res, next) {
  * @returns {Promise<void>}
  */
 async function postCreatePost(req, res, next) {
-    // check that the user is logged in ?
-    const loggedIn = checkLoggedIn.checkLoggedIn(req);
-    if (!loggedIn) {
-        // user is not loggedIn
-        // here we can flash the data to the session
-        // TODO
-        // redirect to login
-        res.redirect('/login');
-        return;
-    }
+    // check that the user is logged in is done before by the corresponding middleware
     // get the data
     const userId = req.session.userId; // user is loggedIn so there is a userId for sure
     const caption = req.body.caption;
@@ -98,8 +81,8 @@ async function postCreatePost(req, res, next) {
 
 
 
-    // hence all good, redirect to /
-    res.redirect('/');
+    // hence all good,send the appropiate response
+    res.json({result: true});
 
 } // here ends createPost
 
