@@ -4,6 +4,9 @@ const router = express.Router()
 
 const profilePicUpload = require('../middlewares/profilePic-upload');
 
+// redirect middleware
+const redirectIfNotLoggedIn = require('../middlewares/redirectIfNotLoggedIn');
+
 router.get('/:username', profileController.getProfile);
 
 // post to follow a user /user/follow/:userId
@@ -23,11 +26,11 @@ router.get('/edit/:username', profileController.getEditProfile);
 
 router.post('/edit/:username', profilePicUpload,profileController.postEditProfile);
 
-// get route to get all the followers
-router.get('/:username/followers', profileController.getFollowers);
+// get route to fetch all the followers
+router.get('/:username/followers', redirectIfNotLoggedIn, profileController.getFollowers);
 
 // get route to get the 'following' list
-router.get('/:username/following', profileController.getFollowing);
+router.get('/:username/following', redirectIfNotLoggedIn, profileController.getFollowing);
 
 // get route to get the 'follow-request' list
 router.get('/notifications/requestToFollow/:userId', profileController.getFollowRequests);

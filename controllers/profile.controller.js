@@ -337,7 +337,14 @@ async function postEditProfile(req, res, next) {
     res.redirect(`/user/${user.username}`);
 } // here ends teh method
 
-
+/**
+ *
+ * Simple Controller to return the followers of a given user
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function getFollowers(req, res, next) {
     // check that the requester is following or the requestee is public
     // get the requestee
@@ -345,7 +352,10 @@ async function getFollowers(req, res, next) {
     // check if it exists
     if (!requestee) {
         // no user with that username
-        res.redirect('/');
+        res.json({
+            result:false,
+            url : global.frontend
+        })
         return;
     }
 
@@ -366,33 +376,35 @@ async function getFollowers(req, res, next) {
     // if the profile is public, that is it, just return the followers
     if (publicProfile) {
         // public profile
-        res.json({followers: followers});
+        res.json({
+            result: true,
+            followers: followers
+        });
         return;
     }
 
-    // if the profile is not public, check if the requestor is logged in and following the requestee
-    if (!checkLoggedIn(req)) {
-        // requestor not logged in
-        res.redirect('/login');
-        return;
-    }
-
+    // else the profile is private
     // check if the requestor is part of followers and the requestor !== requestee
     const requestorFollowing = profileUtils.isFollowed(requestee.followers, req.session.userId);
     if (!requestorFollowing && req.session.userId !== requestee._id.toString()) {
         // not following
-        res.redirect(`/user/${req.params.username}`);
+        res.json({
+            result:false,
+            url : `${global.frontend}/user/${req.params.username}`
+        })
         return;
     }
 
     // at this point all good, return the followers
-    res.json({followers: followers});
+    res.json({
+        result: true,
+        followers: followers});
 
 } // here endsGetFollowers
 
 
 /**
- * get route to retrieve the 'following' list
+ * Simple controller to fetch the 'following' list from a user
  * @param {Express.Request} req
  * @param res
  * @param next
@@ -405,7 +417,10 @@ async function getFollowing(req, res, next) {
     // check if it exists
     if (!requestee) {
         // no user with that username
-        res.redirect('/');
+        res.json({
+            result: false,
+            url : global.frontend
+        })
         return;
     }
 
@@ -423,29 +438,31 @@ async function getFollowing(req, res, next) {
     ); // here ends Promise.all
 
 
-    // if the profile is public, that is it, just return the followers
+    // if the profile is public, that is it, just return the following list
     if (publicProfile) {
         // public profile
-        res.json({following: following});
+        res.json({
+            result: true,
+            following: following});
         return;
     }
 
-    // if the profile is not public, check if the requestor is logged in and following the requestee
-    if (!checkLoggedIn(req)) {
-        // requestor not logged in
-        res.redirect('/login');
-        return;
-    }
+
     // check if the requestor is part of followers
     const requestorFollowing = profileUtils.isFollowed(requestee.followers, req.session.userId);
     if (!requestorFollowing && req.session.userId !== requestee._id.toString()) {
         // not following
-        res.redirect(`/user/${req.params.username}`);
+        res.json({
+            result: false,
+            url : `${global.frontend}/user/${req.params.username}`
+        })
         return;
     }
 
-    // at this point all good, return the followers
-    res.json({following: following});
+    // at this point all good, return the following list
+    res.json({
+        result: true,
+        following: following});
 
 } // here ends the method
 
