@@ -7,17 +7,16 @@ const userConnections = require('../utils/userConnections');
 
 
 /**
- * Simple controller to render the initial page
- * @param req
+ * Simple controller to sends the corresponding csrf token
+ * @param {Express.Request} req
  * @param res
  */
 function getCreateStory(req, res) {
-
-    // print the headers
-    // console.log((req.headers));
-    // the user is already logged in
-    // just render the page
-    res.render('stories/createStory');
+    // return a csrf token
+    return res.json({
+        result: true,
+        csrf: req.csrfToken()
+    })
 }
 
 async function postUploadStory(req, res) {
@@ -33,6 +32,18 @@ async function postUploadStory(req, res) {
     // add the story to the respective data structure
     stories.addStory(filename, req.session.userId, mimeType);
     res.json({result: true})
+}
+
+/**
+ * Options controller to accept the post request
+ * @param req
+ * @param res
+ */
+function optionsUploadStory(req, res) {
+    // allow the custom headers
+    res.append('Access-Control-Allow-Headers', 'mime-type, content-type, file-name, content-length');
+    // all good
+    res.status(204).end();
 }
 
 /**
@@ -153,5 +164,6 @@ module.exports = {
     getStoriesForUser: getStoriesForUser,
     displayStory:displayStory,
     renderStory: renderStory,
-    getMoreStories: getMoreStories
+    getMoreStories: getMoreStories,
+    optionsUploadStory: optionsUploadStory
 }

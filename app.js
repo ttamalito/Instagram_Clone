@@ -50,7 +50,7 @@ app.use(express.urlencoded({
     extended: false,
     type: 'application/x-www-form-urlencoded'
 }));
-app.use(bodyParser.raw({limit: '10kb'}));
+app.use(bodyParser.raw({limit: '2mb'}));
 // create the session
 app.use(expressSession(configSession(PORT, databaseName)));
 

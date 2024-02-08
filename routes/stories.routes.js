@@ -11,6 +11,9 @@ router.get('/createStory', redirectIfNotLoggedIn, storiesController.getCreateSto
 // POST route to upload a story
 router.post('/uploadStory', redirectIfNotLoggedIn, storiesController.postUploadStory);
 
+// OPTIONs route to preflight the post request
+router.options('/uploadStory', storiesController.optionsUploadStory);
+
 // GET route to fetch the stories of a given user
 router.get('/getStories/:userId', storiesController.getStoriesForUser);
 

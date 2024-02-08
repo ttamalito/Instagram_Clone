@@ -14,7 +14,9 @@ function getSignUp(req, res, next) {
     if (checkloggedInUtils.checkLoggedIn(req)) {
         // he is logged in
         // send that the operation could not be performed
-        res.json({result: false});
+        res.json({
+            result: false
+        });
         return;
     }
 
