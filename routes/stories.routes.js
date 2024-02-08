@@ -15,7 +15,7 @@ router.post('/uploadStory', redirectIfNotLoggedIn, storiesController.postUploadS
 router.options('/uploadStory', storiesController.optionsUploadStory);
 
 // GET route to fetch the stories of a given user
-router.get('/getStories/:userId', storiesController.getStoriesForUser);
+router.get('/getStories/:username', storiesController.getStoriesForUser);
 
 // get route to fetch a single story
 router.get('/fetchStories/:username/:filename/:sequence', redirectIfNotLoggedIn, storiesController.displayStory);

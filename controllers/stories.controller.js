@@ -36,6 +36,7 @@ async function postUploadStory(req, res) {
 
 /**
  * Options controller to accept the post request
+ * Destroys the session that the options request created
  * @param req
  * @param res
  */
@@ -43,11 +44,18 @@ function optionsUploadStory(req, res) {
     // allow the custom headers
     res.append('Access-Control-Allow-Headers', 'mime-type, content-type, file-name, content-length');
     // all good
-    res.status(204).end();
+    // delete the session
+    if (!req.session.userId) {
+        req.session.destroy(() => {
+            res.status(204).end();
+        })
+    }
+
 }
 
 /**
  * Simple controller to fetch the stories of a given user that is authenticated
+ * This should be the initial point to see if a user has stories
  * @param req
  * @param res
  * @param next
@@ -55,11 +63,17 @@ function optionsUploadStory(req, res) {
  */
 async function getStoriesForUser(req, res, next) {
 
+    // get the user
+    const user = await userModel.retrieveUserByUsername(req.params.username);
+
     // get the username and fetch the stories
-    const result = await userModel.getStoriesForUser(new ObjectId(req.params.userId));
+    const result = await userModel.getStoriesForUser(user._id);
     const {_id, stories} = result;
     // send them as a response
-    res.json({stories: stories});
+    res.json({
+        result: true,
+        stories: stories
+    });
 } // ends getStoriesForUser
 
 
