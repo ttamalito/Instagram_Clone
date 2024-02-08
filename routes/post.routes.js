@@ -27,4 +27,7 @@ router.post('/post/comment/:postId', postController.postComment);
 // post route to delete a comment
 router.post('/deleteComment/:postId/:commentId', postController.postDeleteComment);
 
+// GET route to fetch a single post
+router.get('/post/:id', postController.getPost);
+
 module.exports = router;

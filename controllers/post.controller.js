@@ -10,6 +10,7 @@ const {isFollowed} = require('../utils/profile.utils');
 
 // import the global variables
 const global = require('../utils/global');
+const LikeCommentEnum = require("../utils/LikeCommentEnum");
 /**
  * GET for /createPost, it sends the CSRF token to the client
  * @param req
@@ -372,6 +373,73 @@ async function postDeleteComment(req, res, next) {
 
 } // here ends postDeleteComment
 
+/**
+ * Simple Controller to fetch a single post
+ * @param req
+ * @param res
+ * @return {Promise<void>}
+ */
+async function getPost(req, res) {
+
+    // fetch the post
+    const pId = req.params.id;
+    const postId = new ObjectId(pId);
+    const post = await postModel.getPost(postId);
+
+    // modify the post to get the like count
+    post.likeCount = profileUtils.getCount(post, LikeCommentEnum.Like);
+    post.commentCount = profileUtils.getCount(post, LikeCommentEnum.Comment)
+    post.likeValue = profileUtils.checkLikedByUser(post, new ObjectId(req.session.userId));
+
+    // get the owner of the post
+    const ownerId = post.userId;
+    // fetch the owner
+    const owner = await userModel.getUser(ownerId);
+    // see if the profile is public
+    if (owner.public || owner._id.toString() === req.session.userId) {
+        // if so send the post and the username of the owner
+        res.json({
+            result: true,
+            username: owner.username,
+            post: post
+
+        });
+        return
+    }
+
+    // the profile is private
+    // check if the user requesting is logged in
+    if (!checkLoggedIn.checkLoggedIn(req)) {
+        // not logged in, redirect
+        res.json({
+            result: false,
+            url: `${global.frontend}/login`
+        })
+        return;
+    }
+
+    // see if the client is following the owner
+    const client = await userModel.retrieveUserByUsername(req.session.username);
+    if (!client)
+        throw new Error(`A ghost sent the request`);
+    if (!isFollowed(owner.followers, req.session.userId)) {
+        // not following the owner
+        res.json({
+            result: false,
+            url: global.frontend
+        })
+        return;
+    }
+
+    // else the client is following the owner, so we can send the post
+    res.json({
+        result: true,
+        post: post,
+        username: owner.username
+    })
+
+} // end of getPost
+
 
 module.exports = {
     getCreatePost: getCreatePost,
@@ -380,5 +448,6 @@ module.exports = {
     getLikedBy: getLikedBy,
     postComment: postComment,
     getComment: getComment,
-    postDeleteComment: postDeleteComment
+    postDeleteComment: postDeleteComment,
+    getPost: getPost
 }
