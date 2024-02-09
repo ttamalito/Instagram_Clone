@@ -4,7 +4,7 @@ const stories = require('../utils/Stories');
 const userModel = require('../models/user.model')
 const {ObjectId} = require("mongodb");
 const userConnections = require('../utils/userConnections');
-const {global} = require('../utils/global');
+const globalVariables = require('../utils/global');
 
 /**
  * Simple controller to sends the corresponding csrf token
@@ -78,6 +78,8 @@ async function getStoriesForUser(req, res, next) {
 
 /**
  * Simple controller to fetch the data of a single story
+ * And checks if there is another story for the user
+ * If so it send the link for that story as a header
  * @param req
  * @param res
  * @param next
@@ -104,7 +106,9 @@ async function getStory(req, res, next) {
         const nextFile = stories[sequenceNumber + 1].filename;
         const nextIndex = sequenceNumber + 1;
         // set the appropiate headers
-        res.append('Next-Story-Link', `${global.backend}/stories/${ownerUsername}/${nextFile}/${nextIndex}`);
+        res.append('Next-Story-Link', `/stories/${owner}/${nextFile}/${nextIndex}`);
+        // make the header available to scripts in the browser
+        res.append('Access-Control-Expose-Headers', 'Next-Story-Link');
     }
 
 
