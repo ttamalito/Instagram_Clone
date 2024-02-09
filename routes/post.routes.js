@@ -18,11 +18,14 @@ router.get('/like/:postId', postController.getLike);
 // get /post/liked/:postId
 router.get('/post/liked/:postId', postController.getLikedBy);
 
-// get /post/comment/:postId
-router.get('/post/comment/:postId', postController.getComment);
+// get /post/comments/:postId
+router.get('/post/comments/:postId', postController.getComment);
+
+// get route to retrive the csrf token to post a comment
+router.get('/post/comment/:postId', postController.csrfPostComment);
 
 // post /post/comment/:postId
-router.post('/post/comment/:postId', postController.postComment);
+router.post('/post/comment/:postId', redirectIfNotLoggedIn, postController.postComment);
 
 // post route to delete a comment
 router.post('/deleteComment/:postId/:commentId', postController.postDeleteComment);

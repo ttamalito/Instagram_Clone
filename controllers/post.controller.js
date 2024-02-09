@@ -207,19 +207,15 @@ async function getLikedBy(req, res, next) {
 }
 
 /**
- * POST /post/comment/:postId, controller to post a comment
+ * Controller to post a comment on a post
  * @param req
  * @param res
  * @param next
  * @returns {Promise<void>}
  */
 async function postComment(req, res, next) {
-    // check that the user is logged in
-    if (!checkLoggedIn.checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
+    // check that the user is logged in, is done before
+
 
     // get the user id and the postId
     const userId = req.session.userId;
@@ -263,7 +259,10 @@ async function postComment(req, res, next) {
             commentObject, post);
     }
     // else all good
-    res.json({commentCount: commentCount});
+    res.json({
+        result: true,
+        commentCount: commentCount
+    });
 } // here ends postComment
 
 /**
@@ -440,6 +439,20 @@ async function getPost(req, res) {
 
 } // end of getPost
 
+/**
+ * Controller to return the csrf token to post a comment
+ * @param req
+ * @param res
+ * @return {*}
+ */
+function csrfPostComment(req, res) {
+    // send the csrf token
+    return res.json({
+        result: true,
+        csrf: req.csrfToken()
+    })
+}
+
 
 module.exports = {
     getCreatePost: getCreatePost,
@@ -449,5 +462,6 @@ module.exports = {
     postComment: postComment,
     getComment: getComment,
     postDeleteComment: postDeleteComment,
-    getPost: getPost
+    getPost: getPost,
+    csrfPostComment: csrfPostComment
 }
