@@ -18,10 +18,10 @@ router.options('/uploadStory', storiesController.optionsUploadStory);
 router.get('/getStories/:username', storiesController.getStoriesForUser);
 
 // get route to fetch a single story
-router.get('/fetchStories/:username/:filename/:sequence', redirectIfNotLoggedIn, storiesController.displayStory);
+router.get('/stories/:username/:filename/:sequence', redirectIfNotLoggedIn, storiesController.getStory);
 
 // get route to render the page
-router.get('/stories/:username/:filename/:sequence', redirectIfNotLoggedIn, storiesController.renderStory);
+router.get('/changeThis/:username/:filename/:sequence', redirectIfNotLoggedIn, storiesController.renderStory);
 
 // get route to fetch the remaining stories from a user
 router.get('/getMoreStories/:username', redirectIfNotLoggedIn, storiesController.getMoreStories);

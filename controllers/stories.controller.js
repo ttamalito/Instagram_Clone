@@ -4,7 +4,7 @@ const stories = require('../utils/Stories');
 const userModel = require('../models/user.model')
 const {ObjectId} = require("mongodb");
 const userConnections = require('../utils/userConnections');
-
+const {global} = require('../utils/global');
 
 /**
  * Simple controller to sends the corresponding csrf token
@@ -76,15 +76,40 @@ async function getStoriesForUser(req, res, next) {
     });
 } // ends getStoriesForUser
 
-
-async function displayStory(req, res, next) {
+/**
+ * Simple controller to fetch the data of a single story
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
+async function getStory(req, res, next) {
     // get the user that is the owner of the stories
     const owner = req.params.username;
     // get the filename
     const filename = req.params.filename;
     // get the sequence (to see if there are more stories)
-    const sequenceNumber = req.params.sequence;
+    const sequenceNumber = Number(req.params.sequence);
+
+    // TODO -- check if the client is following the user
+
+    const user = await userModel.retrieveUserByUsername(owner);
+
+    // check if there are more stories for the user
+    const stories = user.stories;
+
+    const maxStories = stories.length -1;
+    if (maxStories > sequenceNumber) {
+        // there are some stories left
+        const nextFile = stories[sequenceNumber + 1].filename;
+        const nextIndex = sequenceNumber + 1;
+        // set the appropiate headers
+        res.append('Next-Story-Link', `${global.backend}/stories/${ownerUsername}/${nextFile}/${nextIndex}`);
+    }
+
+
     res.attachment(filename);
+    res.status(200);
     // res.render('stories/story', {username: owner, filename:filename, sequenceNumber: sequenceNumber });
     // retrieve the file from disk, by creating a ReadableStream
     const pathOfFile = path.join('./data/stories', filename);
@@ -93,7 +118,7 @@ async function displayStory(req, res, next) {
         console.log(`Stream Closed`);
         console.log(`We read ${readStream.bytesRead} bytes`);
         // close the response
-        res.end();
+        res.status(200).end();
     });
     let n = 1;
     let i;
@@ -109,20 +134,21 @@ async function displayStory(req, res, next) {
             i = Date.now();
             console.log(`${m} milliseconds difference bewtween events`);
         }
-        console.log(` We sent ${chunk.byteLength} bytes`)
+        console.log(` We are about to send ${chunk.byteLength} bytes`);
+        console.log(`We have read so far: ${readStream.bytesRead}`);
         // send the raw bytes
         //const connection = userConnections.getSSEConnectionForUser(req.session.userId);
         //connection.write(chunk, callback=() => {console.log('Chunk was flushed (I dont know what is)')});
+        // before sending the response, set the Content-Range header
         res.write(chunk);
-        // pause the stream for 1 second
+        // pause the stream for 0 seconds
         readStream.pause();
 
         setTimeout(() => {
             readStream.resume()
             console.log(`Amount of bytes ready to be read: ${readStream.readableLength}`);
-        }, 0)
+        }, 1)
     });
-    // res.end('Hello World');
 }
 
 
@@ -176,7 +202,7 @@ module.exports = {
     getCreateStory: getCreateStory,
     postUploadStory: postUploadStory,
     getStoriesForUser: getStoriesForUser,
-    displayStory:displayStory,
+    getStory:getStory,
     renderStory: renderStory,
     getMoreStories: getMoreStories,
     optionsUploadStory: optionsUploadStory
