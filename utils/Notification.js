@@ -114,7 +114,7 @@ class Notification {
         // check correct type of notification
         if (!this.#checkCorrectTypeOfNotification(typesOfNotificationEnum.NEW_FOLLOWER)) {
             // throw an error
-            throw new Error(`Not correct type of notification-- line 112 utils/Notification`);
+            throw new Error(`Not correct type of notification-- line 117 utils/Notification`);
         }
 
 

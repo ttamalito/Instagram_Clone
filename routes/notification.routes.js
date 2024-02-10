@@ -18,7 +18,7 @@ router.get('/fetchLikesNotifications', notificationController.getFetchLikesNotif
 router.get('/fetchCommentNotifications', notificationController.getFetchCommentNotifications);
 
 // get route to fetch all follow notifications
-router.get('/fetchFollowNotifications', notificationController.getFetchFollowNotifications);
+router.get('/fetchFollowNotifications', redirectIfNotLoggedIn, notificationController.getFetchFollowNotifications);
 
 // get route to fetch the chat notifications
 router.get('/fetchChatNotifications', redirectIfNotLoggedIn, notificationController.getFetchChatNotifications);
@@ -26,8 +26,10 @@ router.get('/fetchChatNotifications', redirectIfNotLoggedIn, notificationControl
 // delete route to remove a chat notification
 router.delete('/removeNotification/chat', redirectIfNotLoggedIn, notificationController.deleteChatNotification);
 
-// delete route to remove a follow notification
-router.delete('/removeNotification/follow', redirectIfNotLoggedIn, notificationController.deleteFollowNotification);
+// PUT route to remove a follow notification
+router.put('/removeNotification/follow', redirectIfNotLoggedIn, notificationController.deleteFollowNotification);
+
+router.options('/removeNotification/follow', notificationController.optionsRequestDeleteNotification);
 
 // delete route to remove a comment notification
 router.delete('/removeNotification/comment', redirectIfNotLoggedIn, notificationController.deleteCommentNotification);

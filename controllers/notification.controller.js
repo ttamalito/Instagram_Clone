@@ -134,14 +134,14 @@ async function getFetchCommentNotifications(req, res, next) {
     res.json({notifications: requestor.commentNotifications});
 } // here ends the function
 
-
+/**
+ * Controller to send all the follow notifications for a user
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function getFetchFollowNotifications(req, res, next) {
-    // check login
-    if (!checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
 
     // now fetch the user
     const userId = new ObjectId(req.session.userId);
@@ -154,7 +154,10 @@ async function getFetchFollowNotifications(req, res, next) {
     }
 
     // else return the commentNotifications
-    res.json({notifications: requestor.followNotifications});
+    res.json({
+        result: true,
+        notifications: requestor.followNotifications
+    });
 } // here ends the function
 
 async function getFetchChatNotifications(req, res, next) {
@@ -267,6 +270,19 @@ async function deleteLikeNotification(req, res) {
     res.json({result: false});
 } // here ends deleteLikeNotfication
 
+/**
+ * Controller to handle the options request from the browser
+ * @param req
+ * @param res
+ */
+function optionsRequestDeleteNotification(req, res) {
+    // delete the newly create session by that request
+    req.session.destroy(() => {
+        // once destroy, send the respnse
+        res.status(204).end();
+    })
+} // end of function
+
 
 module.exports = {
     getFetchNotifications: getFetchNotifications,
@@ -278,5 +294,6 @@ module.exports = {
     deleteFollowNotification: deleteFollowNotification,
     deleteCommentNotification: deleteCommentNotification,
     deleteLikeNotification: deleteLikeNotification,
-    getFetchFollowRequestNotifications: getFetchFollowRequestNotifications
+    getFetchFollowRequestNotifications: getFetchFollowRequestNotifications,
+    optionsRequestDeleteNotification: optionsRequestDeleteNotification
 };
