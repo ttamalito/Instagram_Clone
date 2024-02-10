@@ -36,10 +36,10 @@ router.get('/:username/following', redirectIfNotLoggedIn, profileController.getF
 router.get('/notifications/requestToFollow/:userId', profileController.getFollowRequests);
 
 // get route to accept a follow request
-router.get('/acceptFollow/:username', profileController.getAcceptFollowRequest);
+router.get('/acceptFollow/:username', redirectIfNotLoggedIn ,profileController.getAcceptFollowRequest);
 
 // get route to reject a follow request
-router.get('/rejectFollow/:username', profileController.getRejectFollowRequest);
+router.get('/rejectFollow/:username', redirectIfNotLoggedIn, profileController.getRejectFollowRequest);
 
 // get to remove the request to follow a user
 router.get('/removeRequestToFollow/:username', profileController.getRemoveRequestToFollow);

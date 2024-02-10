@@ -529,12 +529,6 @@ async function getFollowRequests(req, res, next) {
  * @return {Promise<void>}
  */
 async function getAcceptFollowRequest(req, res, next) {
-    // chek login
-    if (!checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
 
     // make sure the users exist
     const userToRetreive = await userModel.getUser(new ObjectId(req.session.userId));
@@ -566,14 +560,14 @@ async function getAcceptFollowRequest(req, res, next) {
     res.json({result: followResult});
 } // here ends the method
 
-
+/**
+ * Controller to reject a request to follow from the user in the params
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function getRejectFollowRequest(req, res, next) {
-    // check that the user is logged in
-    if (!checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
 
     // make sure the users exist
     const userToRetrieve = await userModel.getUser(new ObjectId(req.session.userId));
