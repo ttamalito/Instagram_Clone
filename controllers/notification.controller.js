@@ -29,8 +29,53 @@ async function getFetchNotifications(req, res, next) {
 
     } // here ends the if
     // send the data
-    res.json({amountNotifications: notifications})
+    res.json({
+        result: true,
+        amountNotifications: notifications
+    })
 } // here ends the function
+
+/**
+ * Controller to fetch all the followRequestNotifications of
+ * a looged in user
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
+async function getFetchFollowRequestNotifications(req, res, next) {
+
+
+    const sessionUserId = req.session.userId;
+
+    // now retrieve the request to follow users from the database
+    const user = await userModel.getUser(new ObjectId(sessionUserId));
+
+    // check if exists
+    if (!user) {
+        next(new Error('Trying to request notifications for non existent user'));
+        return;
+    }
+
+    // all good
+    let requestToFollow = user.requestToFollow;
+    requestToFollow = await Promise.all(
+        requestToFollow.map(
+            // map function
+            async id => {
+                const user = await userModel.getUser(id);
+                return {
+                    username: user.username
+                };
+            } // here ends callback
+        ) // here ends map
+    ); // here neds Promise.all
+
+    // send the requestToFollow
+    res.json({
+        result: true,
+        requestToFollow: requestToFollow});
+} // end of controller
 
 /**
  * Fetches all the likes Notifications for a user
@@ -232,5 +277,6 @@ module.exports = {
     deleteChatNotification: deleteChatNotification,
     deleteFollowNotification: deleteFollowNotification,
     deleteCommentNotification: deleteCommentNotification,
-    deleteLikeNotification: deleteLikeNotification
+    deleteLikeNotification: deleteLikeNotification,
+    getFetchFollowRequestNotifications: getFetchFollowRequestNotifications
 };

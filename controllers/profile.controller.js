@@ -520,7 +520,14 @@ async function getFollowRequests(req, res, next) {
     res.json({requestToFollow: requestToFollow});
 } // here ends the method
 
-
+/**
+ * Controller to accept a follow request
+ * :username in params, is the user to be accepted
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function getAcceptFollowRequest(req, res, next) {
     // chek login
     if (!checkLoggedIn(req)) {
