@@ -86,11 +86,7 @@ async function getFetchFollowRequestNotifications(req, res, next) {
  */
 async function getFetchLikesNotifications(req, res, next) {
     // check that the user is logged in
-    if (!checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
+
 
     // now fetch all the notifications for the user requesting
     const user = await userModel.getUser(new ObjectId(req.session.userId));
@@ -102,7 +98,9 @@ async function getFetchLikesNotifications(req, res, next) {
     }
 
     // now send all the likes notifications for the user
-    res.json({notifications: user.likeNotifications })
+    res.json({
+        result: true,
+        notifications: user.likeNotifications })
 }
 
 /**

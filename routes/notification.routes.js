@@ -12,7 +12,7 @@ router.get('/fetchNotifications', notificationController.getFetchNotifications);
 router.get('/fetchFollowRequestNotifications', redirectIfNotLoggedIn, notificationController.getFetchFollowRequestNotifications);
 
 // get route to fetch all the likes notifications (used in script of showNotificationsForUser)
-router.get('/fetchLikesNotifications', notificationController.getFetchLikesNotifications);
+router.get('/fetchLikesNotifications', redirectIfNotLoggedIn, notificationController.getFetchLikesNotifications);
 
 // get route to fetch all the comment notifications (used in the same script)
 router.get('/fetchCommentNotifications', notificationController.getFetchCommentNotifications);
@@ -35,8 +35,10 @@ router.options('/removeNotification/follow', notificationController.optionsReque
 router.delete('/removeNotification/comment', redirectIfNotLoggedIn, notificationController.deleteCommentNotification);
 
 // delete route to remove a like notification
-router.delete('/removeNotification/like', redirectIfNotLoggedIn, notificationController.deleteLikeNotification);
+router.put('/removeNotification/like', redirectIfNotLoggedIn, notificationController.deleteLikeNotification);
 
+// options route to remove the like notification
+router.options('/removeNotification/like', notificationController.optionsRequestDeleteNotification);
 
 
 module.exports = router;
