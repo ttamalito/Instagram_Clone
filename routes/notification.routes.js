@@ -15,7 +15,7 @@ router.get('/fetchFollowRequestNotifications', redirectIfNotLoggedIn, notificati
 router.get('/fetchLikesNotifications', redirectIfNotLoggedIn, notificationController.getFetchLikesNotifications);
 
 // get route to fetch all the comment notifications (used in the same script)
-router.get('/fetchCommentNotifications', notificationController.getFetchCommentNotifications);
+router.get('/fetchCommentNotifications', redirectIfNotLoggedIn, notificationController.getFetchCommentNotifications);
 
 // get route to fetch all follow notifications
 router.get('/fetchFollowNotifications', redirectIfNotLoggedIn, notificationController.getFetchFollowNotifications);
@@ -32,7 +32,9 @@ router.put('/removeNotification/follow', redirectIfNotLoggedIn, notificationCont
 router.options('/removeNotification/follow', notificationController.optionsRequestDeleteNotification);
 
 // delete route to remove a comment notification
-router.delete('/removeNotification/comment', redirectIfNotLoggedIn, notificationController.deleteCommentNotification);
+router.put('/removeNotification/comment', redirectIfNotLoggedIn, notificationController.deleteCommentNotification);
+
+router.options('/removeNotification/comment', notificationController.optionsRequestDeleteNotification);
 
 // delete route to remove a like notification
 router.put('/removeNotification/like', redirectIfNotLoggedIn, notificationController.deleteLikeNotification);

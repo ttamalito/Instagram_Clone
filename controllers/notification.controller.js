@@ -111,12 +111,7 @@ async function getFetchLikesNotifications(req, res, next) {
  * @returns {Promise<void>}
  */
 async function getFetchCommentNotifications(req, res, next) {
-    // check login
-    if (!checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
+
 
     // now fetch the user
     const userId = new ObjectId(req.session.userId);
@@ -129,7 +124,9 @@ async function getFetchCommentNotifications(req, res, next) {
     }
 
     // else return the commentNotifications
-    res.json({notifications: requestor.commentNotifications});
+    res.json({
+        result: true,
+        notifications: requestor.commentNotifications});
 } // here ends the function
 
 /**
