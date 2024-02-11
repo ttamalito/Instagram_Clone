@@ -155,6 +155,13 @@ async function getFetchFollowNotifications(req, res, next) {
     });
 } // here ends the function
 
+/**
+ * Controller to fetch all the chat notifications
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function getFetchChatNotifications(req, res, next) {
     // logged in is checked before
 
@@ -172,9 +179,18 @@ async function getFetchChatNotifications(req, res, next) {
     // get the chat notifications
     const chatNotifications = user.chatNotifications;
 
-    res.json({notifications: chatNotifications})
+    res.json({
+        result: true,
+        notifications: chatNotifications})
 } // here ends getFetchChatNOtifications
 
+/**
+ * Controller to remove a chat notification
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function deleteChatNotification(req, res, next) {
     // if has been cheked already if the user is authenticated
     // create a chatNotification data

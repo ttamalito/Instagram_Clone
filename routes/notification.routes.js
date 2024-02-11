@@ -24,7 +24,11 @@ router.get('/fetchFollowNotifications', redirectIfNotLoggedIn, notificationContr
 router.get('/fetchChatNotifications', redirectIfNotLoggedIn, notificationController.getFetchChatNotifications);
 
 // delete route to remove a chat notification
-router.delete('/removeNotification/chat', redirectIfNotLoggedIn, notificationController.deleteChatNotification);
+router.put('/removeNotification/chat', redirectIfNotLoggedIn, notificationController.deleteChatNotification);
+
+
+// OPTIONS route to remove a chat notification
+router.options('/removeNotification/chat', notificationController.optionsRequestDeleteNotification);
 
 // PUT route to remove a follow notification
 router.put('/removeNotification/follow', redirectIfNotLoggedIn, notificationController.deleteFollowNotification);
