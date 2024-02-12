@@ -448,10 +448,10 @@ async function getFollowing(req, res, next) {
     }
 
 
-    // check if the requestor is part of followers
+    // check if the requestor is part of followers or if it is the same user
     const requestorFollowing = profileUtils.isFollowed(requestee.followers, req.session.userId);
     if (!requestorFollowing && req.session.userId !== requestee._id.toString()) {
-        // not following
+        // not following or not the same user
         res.json({
             result: false,
             url : `${global.frontend}/user/${req.params.username}`

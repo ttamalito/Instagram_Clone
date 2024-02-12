@@ -92,7 +92,7 @@ async function postCreateNewChat(req, res, next) {
 }
 
 /**
- * Renders the page to startNewChat
+ * Sends the CSRF token so that a user can make the post request to start a new chat
  * @param req
  * @param res
  * @param next
@@ -101,17 +101,8 @@ async function postCreateNewChat(req, res, next) {
 async function getStartNewChat(req, res, next) {
     // login was checked beforehand
     // get all the people that the user if following
-    const userId = new ObjectId(req.session.userId);
-
-    const user = await userModel.getUser(userId);
-    const following = await Promise.all(
-        user.following.map(async u => {
-            const customer = await userModel.getUser(u);
-            return {username: customer.username}
-        })
-    ) // here ends Promise.all
-
-    res.render('chat/startNewChat', {following: following})
+    res.json({result: true,
+    csrf: req.csrfToken()});
 }
 
 /**

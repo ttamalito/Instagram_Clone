@@ -16,7 +16,7 @@ router.get('/retrieveChats/:userId', checkLoggedInMiddleware, chatController.get
 router.post('/createSingleChat', checkLoggedInMiddleware, chatController.postCreateNewChat)
 
 // get route to render the page to start a new chat
-router.get('/startNewChat/:userId', checkLoggedInMiddleware, chatController.getStartNewChat);
+router.get('/startNewChat', checkLoggedInMiddleware, chatController.getStartNewChat);
 
 // get route to fetch the messages of a given chat
 router.get('/getChatMessages/:chatId', checkLoggedInMiddleware, chatController.getMessagesForChat);
