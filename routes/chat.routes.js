@@ -10,7 +10,7 @@ router.get('/inbox', chatController.renderInbox);
 
 
 // get route to retrieve all the chats for a given user
-router.get('/retrieveChats/:userId', checkLoggedInMiddleware, chatController.getChatsForUser);
+router.get('/fetchChats', checkLoggedInMiddleware, chatController.getChatsForUser);
 
 // post route to create a new chat
 router.post('/createSingleChat', checkLoggedInMiddleware, chatController.postCreateNewChat)

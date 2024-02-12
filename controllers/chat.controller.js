@@ -6,15 +6,14 @@ const refactoChatsUtils = require('../utils/chatUtils/refactorChatToSend');
 const {checkUserIsPartOfChat} = require("../utils/chatUtils/utilityFunctionsForChatController");
 const messageModel = require('../models/message.model')
 
+/**
+ * Controller to send back all the chats of a logged in user
+ * @param req
+ * @param res
+ * @param next
+ * @return {Promise<void>}
+ */
 async function getChatsForUser(req, res, next) {
-
-    if (req.session.userId !== req.params.userId) {
-        // user is trying to access someone elses chats
-        res.redirect('/');
-        return;
-    }
-
-
 
     // get the user id
     const userId = new ObjectId(req.session.userId);
@@ -27,12 +26,14 @@ async function getChatsForUser(req, res, next) {
         })
     )
 
-    res.json({chats: chats});
+    res.json({
+        result: true,
+        chats: chats});
 
 }
 
 /**
- * Render the intial inbox page
+ * Render the initial inbox page
  * @param req
  * @param res
  * @param next

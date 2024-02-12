@@ -9,7 +9,7 @@ const userModel = require('../../models/user.model');
  *                  userId: String,
  *                 partnerUsername: String,
  *                 partnerUserId: String,
- *                 messages: [Object],
+ *                 messages: [ObjectId],
  *                 media: [Object]}>} The new chat object
  *
  *@throws {Error} if chat couldnt be refactor properly
