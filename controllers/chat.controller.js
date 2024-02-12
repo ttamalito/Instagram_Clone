@@ -5,6 +5,7 @@ const userModel = require('../models/user.model');
 const refactoChatsUtils = require('../utils/chatUtils/refactorChatToSend');
 const {checkUserIsPartOfChat} = require("../utils/chatUtils/utilityFunctionsForChatController");
 const messageModel = require('../models/message.model')
+const globalVariables = require('../utils/global');
 
 /**
  * Controller to send back all the chats of a logged in user
@@ -121,15 +122,20 @@ async function getMessagesForChat(req, res, next) {
     // check if the user is part of the chat
     if (!checkUserIsPartOfChat(chat.users, userId)) {
         // user is not part of the chat
-        res.redirect('/');
+        res.json({
+            result: false,
+            url: `${globalVariables.frontend}`
+        })
         return;
     }
 
     // now get all the messages
     const messages = await messageModel.getMultipleMessages(chat.messages);
 
-    res.json({messages: messages});
-}
+    res.json({
+        result: true,
+        messages: messages});
+} // end of controller
 
 
 

@@ -19,7 +19,7 @@ router.post('/createSingleChat', checkLoggedInMiddleware, chatController.postCre
 router.get('/startNewChat', checkLoggedInMiddleware, chatController.getStartNewChat);
 
 // get route to fetch the messages of a given chat
-router.get('/getChatMessages/:chatId', checkLoggedInMiddleware, chatController.getMessagesForChat);
+router.get('/fetchMessages/:chatId', checkLoggedInMiddleware, chatController.getMessagesForChat);
 
 
 module.exports = router;
