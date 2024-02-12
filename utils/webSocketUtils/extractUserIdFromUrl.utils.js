@@ -1,10 +1,10 @@
 /**
- * Extracts the user if from the string
- * The string comes in the form /98298393
+ * Extracts the username from the string
+ * The string comes in the form /username
  * @param {String} url
- * @returns {String} the userId (654654)
+ * @returns {String} the username
  */
-function extractUserId(url) {
+function extractUsername(url) {
 
     let userId = '';
     for (let i = 1; i < url.length; i++) {
@@ -13,4 +13,4 @@ function extractUserId(url) {
     return userId
 }
 
-module.exports = extractUserId
+module.exports = extractUsername

@@ -10,6 +10,7 @@ router.get('/', baseController.base);
 // test route for server-sent events
 router.get('/open-connection', baseController.saveConnection);
 
+
 function send(res) {
     res.write('data: ' + 'hello!\n\n');
 

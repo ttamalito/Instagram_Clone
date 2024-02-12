@@ -1,10 +1,12 @@
 const WebSocketServer = require('ws').WebSocketServer;
 const http = require('http');
 
-const extractUserIdFromUrl = require('../utils/webSocketUtils/extractUserIdFromUrl.utils')
+const extractUserNameFromUrl = require('../utils/webSocketUtils/extractUserIdFromUrl.utils')
 const sendMessage = require('../utils/webSocketUtils/sendMessageToUser')
 // map that stores the webSocketConnections
 const userConnections = require('../utils/userConnections');
+
+const userModel = require('../models/user.model');
 
 /**
  * Initiates the websocket server and
@@ -20,8 +22,26 @@ function initiateWebSocketServer(httpServer) {
    wss.on('connection', (ws, req) => {
             console.log(req.url)
 
-            // get the userId
-            const userId = extractUserIdFromUrl(req.url);
+            userModel.retrieveUserByUsername(extractUserNameFromUrl(req.url)).then(
+                user => {
+                    // check if it exists
+                    if (!user) {
+                        ws.terminate();
+                        return;
+                    }
+                    // it exists, then add the ws to the user connections
+                    const userId = user._id.toString();
+                    // add the webSocket to the connections map
+                    if (userConnections.hasUserConnections(userId)) {
+                        // he already has a connection
+                        userConnections.addWebSocketConnectionForUser(userId, ws);
+                    } else {
+                        // the user has no active connections
+                        // create a new one
+                        userConnections.addConnectionsToUser(userId, null, ws);
+                    }
+                }
+            ) // end of then
 
 
 
@@ -36,16 +56,7 @@ function initiateWebSocketServer(httpServer) {
 
             // add the message event listener to the socket
             addMessageEventListenerToWebSocket(ws);
-            ws.send('Hello from the server!')
-            // add the webSocket to the connections map
-            if (userConnections.hasUserConnections(userId)) {
-                // he already has a connection
-                userConnections.addWebSocketConnectionForUser(userId, ws);
-            } else {
-                // the user has no active connections
-                // create a new one
-                userConnections.addConnectionsToUser(userId, null, ws);
-            }
+
         } // here ends the listener for establshing a new connection to the websocket server
     )// here ends the connection event
 
@@ -54,7 +65,7 @@ function initiateWebSocketServer(httpServer) {
     }) // here ends the event on listening
 
 
-} // here ends initiateWebSocketServer
+} // here ends initiateWebSocketServer (function)
 
 
 /**
@@ -67,11 +78,19 @@ function addMessageEventListenerToWebSocket(ws) {
         const messageString = data.toString()
         // make it an object
         const message = JSON.parse(messageString);
-        console.log(message)
-        // send the message with the utils
-        sendMessage(message);
-    })
-}
+        // get the username and find the corrsponding id
+        userModel.retrieveUserByUsername(message.messageFromUsername).then(user => {
+            // add the id
+            if (!user)
+                throw new Error(`User sending the message does not exist`)
+            message.messageFrom = user._id.toString();
+            console.log(message)
+            // send the message with the utils
+            sendMessage(message);
+        })
+
+    }) // end of listner
+} // end of function
 
 
 module.exports = initiateWebSocketServer;
