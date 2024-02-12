@@ -86,8 +86,7 @@ async function postCreateNewChat(req, res, next) {
     if(!saveChatOne || !saveChatTwo)
         next(new Error(`Could not save chat to some user`));
     // else all good
-    // redirect to inbox
-    res.redirect('/chat/inbox');
+    res.json({result: true});
 
 }
 
