@@ -7,7 +7,7 @@ const LikeCommentEnum = require('../utils/LikeCommentEnum');
 const {Notification, typesOfNotificationEnum} = require('../utils/Notification');
 
 // global variables
-const global = require('../utils/global');
+const globalVariables = require('../utils/global');
 
 /**
  * Displays the user profile
@@ -113,7 +113,7 @@ async function putFollow(req, res,  next) {
         // user is not loggedIn
         res.json({
             result: false,
-            url: `${global.frontend}/login`
+            url: `${globalVariables.frontend}/login`
         });
         return;
     }
@@ -131,7 +131,7 @@ async function putFollow(req, res,  next) {
         console.log('You are trying to follow a Ghost! -line 123 profile controller');
         res.json({
             result: false,
-            url: `${global.frontend}`
+            url: `${globalVariables.frontend}`
         });
         return;
     }
@@ -198,7 +198,7 @@ async function putUnfollow(req, res, next) {
         // redirect to login
         res.json({
             result: false,
-            url: `${global.frontend}/login`
+            url: `${globalVariables.frontend}/login`
         });
         return;
     }
@@ -214,7 +214,7 @@ async function putUnfollow(req, res, next) {
         // no user was found
         res.json({
             result: false,
-            url: `${global.frontend}`
+            url: `${globalVariables.frontend}`
         })
         return;
     }
@@ -225,7 +225,7 @@ async function putUnfollow(req, res, next) {
         // something went wrong while unfollowing, the operation could not be performed
         res.json({
             result: false,
-            url: `${global.frontend}`
+            url: `${globalVariables.frontend}`
         })
         return;
     }
@@ -237,18 +237,13 @@ async function putUnfollow(req, res, next) {
 } // end of putUnfollow
 
 /**
- * Renders the page to edit the profile settings
+ * Sends the necessary data to render the edit profile page to the frontend
+ * as well as the csrfToken
  * @param {Express.Request} req
  * @param {Express.Response} res
  * @param next
  */
 async function getEditProfile(req, res, next) {
-    // check that the user is logged in and he is trying to access his own profile
-    if (!checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
 
     // check that it is the same user
     const requestedUsername = req.params.username;
@@ -263,17 +258,22 @@ async function getEditProfile(req, res, next) {
     }
     if (requestedUsername !== user.username) {
         // user is trying to access someone else's profile
-        res.redirect('/');
+        res.json({
+            result: false,
+            url: globalVariables.frontend
+        })
         return;
     }
     const ownProfile = true;
-    // at this point all good, just render the page
-    res.render('profile/editProfile', {
+    // at this point all good, send the data
+    res.json({
+        result: true,
         ownProfile: ownProfile,
         username: user.username,
         imagePath: `/static/images/profilePictures/${user.profilePicture}`,
         userBio: user.bio,
-        publicProfile: user.public
+        publicProfile: user.public,
+        csrf: req.csrfToken()
     });
 }
 
@@ -285,14 +285,8 @@ async function getEditProfile(req, res, next) {
  * @returns {Promise<void>}
  */
 async function postEditProfile(req, res, next) {
-    // check that the user is logged in and it is the same user
-    // check that the user is logged in and he is trying to access his own profile
-    if (!checkLoggedIn(req)) {
-        // not logged in
-        res.redirect('/login');
-        return;
-    }
 
+    res.append('Access-Control-Allow-Headers', 'mime-type, content-type, file-name, content-length');
     // check that it is the same user
     const requestedUsername = req.params.username;
     const user = await userModel.getUser(new ObjectId(req.session.userId));
@@ -306,7 +300,8 @@ async function postEditProfile(req, res, next) {
     }
     if (requestedUsername !== user.username) {
         // user is trying to edit someone else's profile
-        res.redirect('/');
+        res.json({result: false,
+        url: '/'});
         return;
     }
 
@@ -334,7 +329,7 @@ async function postEditProfile(req, res, next) {
 
 
     // redirect to the profile
-    res.redirect(`/user/${user.username}`);
+    res.json({result: true});
 } // here ends teh method
 
 /**
@@ -354,7 +349,7 @@ async function getFollowers(req, res, next) {
         // no user with that username
         res.json({
             result:false,
-            url : global.frontend
+            url : globalVariables.frontend
         })
         return;
     }
@@ -390,7 +385,7 @@ async function getFollowers(req, res, next) {
         // not following
         res.json({
             result:false,
-            url : `${global.frontend}/user/${req.params.username}`
+            url : `${globalVariables.frontend}/user/${req.params.username}`
         })
         return;
     }
@@ -419,7 +414,7 @@ async function getFollowing(req, res, next) {
         // no user with that username
         res.json({
             result: false,
-            url : global.frontend
+            url : globalVariables.frontend
         })
         return;
     }
@@ -454,7 +449,7 @@ async function getFollowing(req, res, next) {
         // not following or not the same user
         res.json({
             result: false,
-            url : `${global.frontend}/user/${req.params.username}`
+            url : `${globalVariables.frontend}/user/${req.params.username}`
         })
         return;
     }
@@ -652,6 +647,11 @@ function optionsUnfollow(req, res, next) {
     }
 } // end of optionsUnfollow
 
+function optionsPostEditProfile(req, res) {
+    console.log(`Pendejo`);
+    res.append('Access-Control-Allow-Headers', 'mime-type, content-type, file-name, content-length')
+}
+
 module.exports = {
     getProfile: getProfile,
     putFollow: putFollow,
@@ -664,5 +664,6 @@ module.exports = {
     getAcceptFollowRequest: getAcceptFollowRequest,
     getRejectFollowRequest: getRejectFollowRequest,
     getRemoveRequestToFollow: getRemoveRequestToFollow,
-    optionsUnfollow: optionsUnfollow
+    optionsUnfollow: optionsUnfollow,
+    optionsPostEditProfile: optionsPostEditProfile
 }

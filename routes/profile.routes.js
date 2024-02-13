@@ -22,9 +22,12 @@ router.put('/unfollow/:username', profileController.putUnfollow);
 router.options('/unfollow/:username', profileController.optionsUnfollow)
 
 // get route to render the edit profile page
-router.get('/edit/:username', profileController.getEditProfile);
+router.get('/edit/:username', redirectIfNotLoggedIn ,profileController.getEditProfile);
 
-router.post('/edit/:username', profilePicUpload,profileController.postEditProfile);
+router.post('/edit/:username', redirectIfNotLoggedIn, profilePicUpload,profileController.postEditProfile);
+
+// OPTIONS route to edit the pofile
+router.options('/edit/:username', profileController.optionsPostEditProfile);
 
 // get route to fetch all the followers
 router.get('/:username/followers', redirectIfNotLoggedIn, profileController.getFollowers);
